@@ -20,7 +20,7 @@ jobs:
         with:
           images: ghcr.io/pulseflow/workers
       - name: Login to GitHub Images
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
