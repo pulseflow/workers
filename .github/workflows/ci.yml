@@ -1,0 +1,16 @@
+name: Build and Lint CI
+
+on:
+  push:
+    branches:
+      - "**"
+    tags:
+      - "v*"
+  pull_request:
+jobs:
+  lint:
+    name: Lint Rust Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3

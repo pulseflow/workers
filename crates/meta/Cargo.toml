@@ -1,0 +1,32 @@
+[package]
+name = "meta_workers"
+version = "0.1.0"
+publish = false
+authors.workspace = true
+edition.workspace = true
+homepage.workspace = true
+repository.workspace = true
+readme.workspace = true
+license.workspace = true
+
+[dependencies]
+interpulse = { path = "../interface" }
+meta_patcher = { path = "../patcher" }
+
+dotenvy = "0.15"
+log = "0.4"
+env_logger = "0.10"
+serde-xml-rs = "0.6"
+zip = "0.6"
+semver = "1.0"
+rust-s3 = "0.33"
+
+tokio.workspace = true
+futures.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+lazy_static.workspace = true
+thiserror.workspace = true
+reqwest.workspace = true
+chrono.workspace = true
+bytes.workspace = true

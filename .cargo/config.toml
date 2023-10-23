@@ -1,0 +1,2 @@
+[alias]
+patcher = "run -p meta_patcher --bin patcher --"

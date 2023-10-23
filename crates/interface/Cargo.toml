@@ -1,0 +1,24 @@
+[package]
+name = "interpulse"
+description = "utilities for interacting with pulseflow apis"
+publish = true
+version = "0.1.0"
+authors.workspace = true
+edition.workspace = true
+homepage.workspace = true
+repository.workspace = true
+readme.workspace = true
+license.workspace = true
+categories = ["game-development", "api-bindings"]
+
+[dependencies]
+bincode = { version = "2.0.0-rc.2", features = ["serde"], optional = true }
+
+reqwest.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+chrono.workspace = true
+bytes.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+sha1.workspace = true

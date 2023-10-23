@@ -1,2 +1,3 @@
-# cloudflare-workers
-a collection of core cloudflare workers for pulseflow apis
+# workers
+
+a collection of core workers for pulseflow apis

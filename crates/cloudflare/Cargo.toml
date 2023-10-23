@@ -1,0 +1,33 @@
+# warning: this must compile to wasm32, the deps are limited
+
+[package]
+name = "cloudflare_workers"
+publish = false
+version = "0.1.0"
+authors.workspace = true
+edition.workspace = true
+homepage.workspace = true
+repository.workspace = true
+readme.workspace = true
+license.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = ["console_error_panic_hook"]
+
+[dependencies]
+worker = { version = "0.0.17" }
+console_error_panic_hook = { version = "0.1", optional = true }
+
+cfg-if.workspace = true
+chrono.workspace = true
+futures.workspace = true
+http.workspace = true
+lazy_static.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+
+[profile.release]
+opt-level = "s"
