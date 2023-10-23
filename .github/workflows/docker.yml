@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Fetch docker metadata
         id: docker_meta
-        uses: docker/metadata-action@v3
+        uses: docker/metadata-action@v5
         with:
           images: ghcr.io/pulseflow/workers
       - name: Login to GitHub Images
