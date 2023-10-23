@@ -10,4 +10,3 @@ use interpulse::{
 	utils::get_hash,
 };
 use meta_patcher::patch::LibraryPatch;
-

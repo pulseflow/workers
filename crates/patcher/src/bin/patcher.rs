@@ -1,6 +1,14 @@
 use clap::Parser;
-use meta_patcher::patch::{collect_patch_files, uncollect_patch_files};
-use meta_patcher::cli::{Cli, Commands};
+use meta_patcher::{
+	cli::{
+		Cli,
+		Commands,
+	},
+	patch::{
+		collect_patch_files,
+		uncollect_patch_files,
+	},
+};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -10,7 +18,7 @@ async fn main() -> anyhow::Result<()> {
 		Commands::MergeFiles(args) => {
 			let merged = collect_patch_files(&args.dir).unwrap();
 			std::fs::write(&args.dest, merged)?;
-		},
+		}
 		Commands::UnmergeFiles(args) => {
 			uncollect_patch_files(&args.dest, &args.dir)?;
 		}

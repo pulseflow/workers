@@ -1,9 +1,24 @@
-pub use std::sync::Arc;
-pub use log::{error, info, warn};
-pub use std::time::{Duration, Instant};
-pub use tokio::sync::{Mutex, Semaphore};
-pub use serde::{Serialize, Deserialize};
 pub use crate::Error;
+pub use log::{
+	error,
+	info,
+	warn,
+};
+pub use serde::{
+	Deserialize,
+	Serialize,
+};
+pub use std::{
+	sync::Arc,
+	time::{
+		Duration,
+		Instant,
+	},
+};
+pub use tokio::sync::{
+	Mutex,
+	Semaphore,
+};
 
 /// Download a file via Semaphore
 pub async fn download_file(

@@ -81,10 +81,7 @@ pub async fn download_file_mirrors(
 }
 
 /// Downloads a file with retry and checksum functionality
-pub async fn download_file(
-	url: &str,
-	sha1: Option<&str>,
-) -> Result<bytes::Bytes, Error> {
+pub async fn download_file(url: &str, sha1: Option<&str>) -> Result<bytes::Bytes, Error> {
 	let mut headers = reqwest::header::HeaderMap::new();
 	if let Ok(header) = reqwest::header::HeaderValue::from_str(&format!(
 		"pulseflow/workers/{} (support@dyn.gay)",
@@ -98,10 +95,7 @@ pub async fn download_file(
 		.timeout(std::time::Duration::from_secs(15))
 		.default_headers(headers)
 		.build()
-		.map_err(|err| Error::FetchError {
-			inner: err,
-			item: url.to_string(),
-		})?;
+		.map_err(|err| Error::FetchError { inner: err, item: url.to_string() })?;
 
 	for attempt in 1..=4 {
 		let result = client.get(url).send().await;
@@ -129,19 +123,11 @@ pub async fn download_file(
 				} else if attempt <= 3 {
 					continue;
 				} else if let Err(err) = bytes {
-					return Err(Error::FetchError {
-						inner: err,
-						item: url.to_string(),
-					});
+					return Err(Error::FetchError { inner: err, item: url.to_string() });
 				}
 			}
-			Err(_) if attempt <=3 => continue,
-			Err(err) => {
-				return Err(Error::FetchError {
-					inner: err,
-					item: url.to_string(),
-				})
-			}
+			Err(_) if attempt <= 3 => continue,
+			Err(err) => return Err(Error::FetchError { inner: err, item: url.to_string() }),
 		}
 	}
 
@@ -150,9 +136,7 @@ pub async fn download_file(
 
 /// Computes a checksum of the input Bytes
 pub async fn get_hash(bytes: bytes::Bytes) -> Result<String, Error> {
-	let hash =
-		tokio::task::spawn_blocking(|| sha1::Sha1::from(bytes).hexdigest())
-			.await?;
+	let hash = tokio::task::spawn_blocking(|| sha1::Sha1::from(bytes).hexdigest()).await?;
 
 	Ok(hash)
 }

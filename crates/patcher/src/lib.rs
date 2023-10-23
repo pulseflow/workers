@@ -1,2 +1,2 @@
-pub mod patch;
 pub mod cli;
+pub mod patch;

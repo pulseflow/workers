@@ -3,7 +3,7 @@ ENV PKG_CONFIG_ALLOW_CROSS=1
 
 WORKDIR /usr/src/workers
 COPY . .
-RUN cargo build --release
+RUN cargo build --release --package meta_workers
 
 FROM debian:bullseye-slim
 
