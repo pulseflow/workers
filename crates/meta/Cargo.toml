@@ -15,7 +15,7 @@ meta_patcher = { path = "../patcher" }
 
 dotenvy = "0.15"
 log = "0.4"
-env_logger = "0.10"
+env_logger = "0.11"
 serde-xml-rs = "0.6"
 zip = "0.6"
 semver = "1.0"
