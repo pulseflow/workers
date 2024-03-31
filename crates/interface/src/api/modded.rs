@@ -1,18 +1,9 @@
 use crate::utils::prelude::*;
 
-use crate::api::minecraft::{
-	Argument,
-	ArgumentType,
-	Library,
-	VersionInfo,
-	VersionType,
-};
+use crate::api::minecraft::{Argument, ArgumentType, Library, VersionInfo, VersionType};
 
 #[cfg(feature = "bincode")]
-use bincode::{
-	Decode,
-	Encode,
-};
+use bincode::{Decode, Encode};
 
 /// The latest version of the format the fabric model structs deserialize to
 pub const CURRENT_FABRIC_FORMAT_VERSION: usize = 0;
@@ -22,6 +13,8 @@ pub const CURRENT_FORGE_FORMAT_VERSION: usize = 0;
 pub const CURRENT_QUILT_FORMAT_VERSION: usize = 0;
 /// The latest version of the format the neoforge model structs deserialize to
 pub const CURRENT_NEOFORGE_FORMAT_VERSION: usize = 0;
+/// The latest version of the format the legacy fabric model structs deserialize to
+pub const CURRENT_LEGACY_FABRIC_FORMAT_VERSION: usize = 0;
 
 /// The dummy replace string library names, inheritsFrom, and version names should be replaced with
 pub const DUMMY_REPLACE_STRING: &str = "${interpulse.gameVersion}";
@@ -153,17 +146,15 @@ pub fn merge_partial_version(partial: PartialVersionInfo, merge: VersionInfo) ->
 			.libraries
 			.into_iter()
 			.chain(merge.libraries)
-			.map(|x| {
-				Library {
-					downloads: x.downloads,
-					extract: x.extract,
-					name: x.name.replace(DUMMY_REPLACE_STRING, &merge_id),
-					url: x.url,
-					natives: x.natives,
-					rules: x.rules,
-					checksums: x.checksums,
-					include_in_classpath: x.include_in_classpath,
-				}
+			.map(|x| Library {
+				downloads: x.downloads,
+				extract: x.extract,
+				name: x.name.replace(DUMMY_REPLACE_STRING, &merge_id),
+				url: x.url,
+				natives: x.natives,
+				rules: x.rules,
+				checksums: x.checksums,
+				include_in_classpath: x.include_in_classpath,
 			})
 			.collect::<Vec<_>>(),
 		main_class: if let Some(main_class) = partial.main_class {

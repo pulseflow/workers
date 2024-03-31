@@ -29,3 +29,5 @@ pub enum Error {
 	#[error("could not obtain semaphore reference; {0}")]
 	AcquireError(#[from] tokio::sync::AcquireError),
 }
+
+pub type Result<T> = core::result::Result<T, Error>;

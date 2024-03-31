@@ -1,13 +1,7 @@
 use clap::Parser;
 use meta_patcher::{
-	cli::{
-		Cli,
-		Commands,
-	},
-	patch::{
-		collect_patch_files,
-		uncollect_patch_files,
-	},
+	cli::{Cli, Commands},
+	patch::{collect_patch_files, uncollect_patch_files},
 };
 
 #[tokio::main]

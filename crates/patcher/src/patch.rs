@@ -1,8 +1,5 @@
 use interpulse::{
-	api::minecraft::{
-		Library,
-		PartialLibrary,
-	},
+	api::minecraft::{Library, PartialLibrary},
 	utils::prelude::*,
 };
 

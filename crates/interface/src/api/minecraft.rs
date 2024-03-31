@@ -1,21 +1,15 @@
 use crate::utils::prelude::*;
 
-use crate::api::modded::{
-	Processor,
-	SidedDataEntry,
-};
+use crate::api::modded::{Processor, SidedDataEntry};
 
 #[cfg(feature = "bincode")]
-use bincode::{
-	Decode,
-	Encode,
-};
+use bincode::{Decode, Encode};
 
 /// The latest version of the format the model structs deserialize to
 pub const CURRENT_FORMAT_VERSION: usize = 0;
 
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 #[serde(rename_all = "snake_case")]
 /// The version type
 pub enum VersionType {
@@ -56,6 +50,9 @@ pub struct Version {
 	/// The latest time a file in this version was updated
 	#[cfg_attr(feature = "bincode", bincode(with_serde))]
 	pub time: DateTime<Utc>,
+	/// The time this version was released
+	#[cfg_attr(feature = "bincode", bincode(with_serde))]
+	pub release_time: DateTime<Utc>,
 	/// The SHA1 hash of the additional information about the version
 	pub sha1: String,
 	/// Whether the version supports the latest player safety features
