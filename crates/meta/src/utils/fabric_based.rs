@@ -1,6 +1,7 @@
 use interpulse::api::minecraft::{Library, VersionManifest};
 use interpulse::api::modded::{
-	LoaderVersion, Manifest, PartialVersionInfo, Version, CURRENT_FABRIC_FORMAT_VERSION, CURRENT_LEGACY_FABRIC_FORMAT_VERSION, CURRENT_QUILT_FORMAT_VERSION, DUMMY_REPLACE_STRING
+	LoaderVersion, Manifest, PartialVersionInfo, Version, CURRENT_FABRIC_FORMAT_VERSION,
+	CURRENT_LEGACY_FABRIC_FORMAT_VERSION, CURRENT_QUILT_FORMAT_VERSION, DUMMY_REPLACE_STRING,
 };
 use interpulse::utils::get_path_from_artifact;
 
@@ -34,7 +35,9 @@ impl FabricLikeLoaders {
 		match self {
 			FabricLikeLoaders::Fabric => "https://maven.fabricmc.net/",
 			FabricLikeLoaders::Quilt => "https://maven.quiltmc.org/",
-			FabricLikeLoaders::LegacyFabric => "https://repo.legacyfabric.net/repository/legacyfabric/",
+			FabricLikeLoaders::LegacyFabric => {
+				"https://repo.legacyfabric.net/repository/legacyfabric/"
+			}
 		}
 	}
 
@@ -53,11 +56,16 @@ pub async fn retrieve_fabric_like_data(
 	uploaded_files: &mut Vec<String>,
 	semaphore: Arc<Semaphore>,
 ) -> crate::Result<()> {
-	let list =
-		fetch_fabric_like_versions::<FabricLikeVersions>(None, semaphore.clone(), loader_name.as_meta_url()).await?;
+	let list = fetch_fabric_like_versions::<FabricLikeVersions>(
+		None,
+		semaphore.clone(),
+		loader_name.as_meta_url(),
+	)
+	.await?;
 	let old_manifest = interpulse::api::modded::fetch_manifest(&format_url(&format!(
 		"{}/v{}/manifest.json",
-		loader_name.as_str(), loader_name.as_format(),
+		loader_name.as_str(),
+		loader_name.as_format(),
 	)))
 	.await
 	.ok();
@@ -88,9 +96,13 @@ pub async fn retrieve_fabric_like_data(
 
 	let loader_versions = futures::future::try_join_all(
 		loaders_mutex.read().await.clone().into_iter().map(|(stable, loader, skip_upload)| async {
-			let version =
-				fetch_fabric_like_version(DUMMY_GAME_VERSION, &loader, semaphore.clone(), loader_name.as_meta_url())
-					.await?;
+			let version = fetch_fabric_like_version(
+				DUMMY_GAME_VERSION,
+				&loader,
+				semaphore.clone(),
+				loader_name.as_meta_url(),
+			)
+			.await?;
 			Ok::<(Box<bool>, String, PartialVersionInfo, Box<bool>), crate::Error>((
 				stable,
 				loader,
@@ -138,7 +150,9 @@ pub async fn retrieve_fabric_like_data(
 									let artifact = download_file(
 										&format!(
 											"{}{}",
-											lib_url.unwrap_or_else(|| loader_name.as_maven_url().to_string()),
+											lib_url.unwrap_or_else(|| loader_name
+												.as_maven_url()
+												.to_string()),
 											artifact_path
 										),
 										None,
@@ -198,8 +212,12 @@ pub async fn retrieve_fabric_like_data(
 			}
 
 			let version = Arc::new(version);
-			let version_path =
-				format!("{}/v{}/versions/{}.json", loader_name.as_str(), loader_name.as_format(), &loader);
+			let version_path = format!(
+				"{}/v{}/versions/{}.json",
+				loader_name.as_str(),
+				loader_name.as_format(),
+				&loader
+			);
 			upload_file_to_bucket(
 				version_path.clone(),
 				serde_json::to_vec(&PartialVersionInfo {

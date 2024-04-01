@@ -11,6 +11,7 @@ pub async fn retrieve_data(
 		forge_based::ForgeLikeLoaders::Forge,
 		minecraft_versions,
 		uploaded_files,
-		semaphore
-	).await
+		semaphore,
+	)
+	.await
 }

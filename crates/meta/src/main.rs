@@ -30,7 +30,8 @@ async fn main() {
 			};
 
 		if let Some(manifest) = versions {
-			match api::fabric::retrieve_data(&manifest, &mut uploaded_files, semaphore.clone()).await
+			match api::fabric::retrieve_data(&manifest, &mut uploaded_files, semaphore.clone())
+				.await
 			{
 				Ok(..) => {}
 				Err(err) => error!("{:?}", err),
@@ -48,7 +49,12 @@ async fn main() {
 				Err(err) => error!("{:?}", err),
 			};
 
-			match api::legacy_fabric::retrieve_data(&manifest, &mut uploaded_files, semaphore.clone()).await
+			match api::legacy_fabric::retrieve_data(
+				&manifest,
+				&mut uploaded_files,
+				semaphore.clone(),
+			)
+			.await
 			{
 				Ok(..) => {}
 				Err(err) => error!("{:?}", err),

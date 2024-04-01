@@ -1,24 +1,36 @@
 use std::{collections::HashMap, io::Read};
 
 use chrono::{DateTime, Utc};
-use interpulse::{api::{minecraft::{Argument, ArgumentType, Library, VersionManifest, VersionType}, modded::{fetch_manifest, LoaderVersion, Manifest, PartialVersionInfo, Processor, SidedDataEntry, CURRENT_FORGE_FORMAT_VERSION, CURRENT_NEOFORGE_FORMAT_VERSION}}, utils::get_path_from_artifact};
+use interpulse::{
+	api::{
+		minecraft::{Argument, ArgumentType, Library, VersionManifest, VersionType},
+		modded::{
+			fetch_manifest, LoaderVersion, Manifest, PartialVersionInfo, Processor, SidedDataEntry,
+			CURRENT_FORGE_FORMAT_VERSION, CURRENT_NEOFORGE_FORMAT_VERSION,
+		},
+	},
+	utils::get_path_from_artifact,
+};
 use semver::{Version, VersionReq};
 
 use crate::utils::*;
 
 lazy_static::lazy_static! {
-    static ref FORGE_MANIFEST_V1_QUERY: VersionReq =
-        VersionReq::parse(">=8.0.684, <23.5.2851").unwrap();
-    static ref FORGE_MANIFEST_V2_QUERY_P1: VersionReq =
-        VersionReq::parse(">=23.5.2851, <31.2.52").unwrap();
-    static ref FORGE_MANIFEST_V2_QUERY_P2: VersionReq =
-        VersionReq::parse(">=32.0.1, <37.0.0").unwrap();
-    static ref FORGE_MANIFEST_V3_QUERY: VersionReq =
-        VersionReq::parse(">=37.0.0").unwrap();
+	static ref FORGE_MANIFEST_V1_QUERY: VersionReq =
+		VersionReq::parse(">=8.0.684, <23.5.2851").unwrap();
+	static ref FORGE_MANIFEST_V2_QUERY_P1: VersionReq =
+		VersionReq::parse(">=23.5.2851, <31.2.52").unwrap();
+	static ref FORGE_MANIFEST_V2_QUERY_P2: VersionReq =
+		VersionReq::parse(">=32.0.1, <37.0.0").unwrap();
+	static ref FORGE_MANIFEST_V3_QUERY: VersionReq =
+		VersionReq::parse(">=37.0.0").unwrap();
 }
 
 #[derive(PartialEq, Clone)]
-pub enum ForgeLikeLoaders { Forge, Neo,}
+pub enum ForgeLikeLoaders {
+	Forge,
+	Neo,
+}
 
 impl ForgeLikeLoaders {
 	pub fn as_str(&self) -> &'static str {
@@ -44,12 +56,15 @@ pub async fn retrieve_forge_like_data(
 ) -> crate::Result<()> {
 	let maven_metadata = match loader_name {
 		ForgeLikeLoaders::Forge => fetch_forge_metadata(None, semaphore.clone()).await?,
-		ForgeLikeLoaders::Neo => fetch_neo_metadata(semaphore.clone()).await?
+		ForgeLikeLoaders::Neo => fetch_neo_metadata(semaphore.clone()).await?,
 	};
 	let old_manifest = fetch_manifest(&format_url(&format!(
 		"{}/v{}/manifest.json",
-		loader_name.as_str(), loader_name.as_format(),
-	))).await.ok();
+		loader_name.as_str(),
+		loader_name.as_format(),
+	)))
+	.await
+	.ok();
 
 	let old_versions = Arc::new(Mutex::new(if let Some(old_manifest) = old_manifest {
 		old_manifest.game_versions
@@ -71,9 +86,9 @@ pub async fn retrieve_forge_like_data(
 
 			if loader_name == ForgeLikeLoaders::Forge {
 				if FORGE_MANIFEST_V1_QUERY.matches(&version)
-                    || FORGE_MANIFEST_V2_QUERY_P1.matches(&version)
-                    || FORGE_MANIFEST_V2_QUERY_P2.matches(&version)
-                    || FORGE_MANIFEST_V3_QUERY.matches(&version)
+					|| FORGE_MANIFEST_V2_QUERY_P1.matches(&version)
+					|| FORGE_MANIFEST_V2_QUERY_P2.matches(&version)
+					|| FORGE_MANIFEST_V3_QUERY.matches(&version)
 				{
 					loaders.push((full, version, new_forge.to_string()))
 				}
@@ -500,21 +515,20 @@ pub async fn retrieve_forge_like_data(
 			minecraft_versions
 				.versions
 				.iter()
-				.position(|z| {
-					match loader_name {
-						ForgeLikeLoaders::Forge => x.id.replace("1.7.10_pre4", "1.7.10-pre4") == z.id,
-						ForgeLikeLoaders::Neo => x.id == z.id
-					}
+				.position(|z| match loader_name {
+					ForgeLikeLoaders::Forge => x.id.replace("1.7.10_pre4", "1.7.10-pre4") == z.id,
+					ForgeLikeLoaders::Neo => x.id == z.id,
 				})
 				.unwrap_or_default()
-				.cmp(&minecraft_versions
+				.cmp(
+					&minecraft_versions
 						.versions
 						.iter()
-						.position(|z| {
-							match loader_name {
-								ForgeLikeLoaders::Forge => y.id.replace("1.7.10_pre4", "1.7.10-pre4") == z.id,
-								ForgeLikeLoaders::Neo => y.id == z.id
+						.position(|z| match loader_name {
+							ForgeLikeLoaders::Forge => {
+								y.id.replace("1.7.10_pre4", "1.7.10-pre4") == z.id
 							}
+							ForgeLikeLoaders::Neo => y.id == z.id,
 						})
 						.unwrap_or_default(),
 				)
@@ -540,7 +554,8 @@ pub async fn retrieve_forge_like_data(
 			Some("application/json".to_string()),
 			uploaded_files_mutex.as_ref(),
 			semaphore,
-		).await?;
+		)
+		.await?;
 	}
 
 	if let Ok(uploaded_files_mutex) = Arc::try_unwrap(uploaded_files_mutex) {
@@ -551,25 +566,25 @@ pub async fn retrieve_forge_like_data(
 }
 
 const DEFAULT_NEO_MAVEN_METADATA_URL_1: &str =
-    "https://maven.neoforged.net/net/neoforged/forge/maven-metadata.xml";
+	"https://maven.neoforged.net/net/neoforged/forge/maven-metadata.xml";
 const DEFAULT_NEO_MAVEN_METADATA_URL_2: &str =
-    "https://maven.neoforged.net/net/neoforged/neoforge/maven-metadata.xml";
+	"https://maven.neoforged.net/net/neoforged/neoforge/maven-metadata.xml";
 const DEFAULT_FORGE_MAVEN_METADATA_URL: &str =
-    "https://files.minecraftforge.net/net/minecraftforge/forge/maven-metadata.json";
+	"https://files.minecraftforge.net/net/minecraftforge/forge/maven-metadata.json";
 
 #[derive(Debug, Deserialize)]
 struct Metadata {
-    versioning: Versioning,
+	versioning: Versioning,
 }
 
 #[derive(Debug, Deserialize)]
 struct Versioning {
-    versions: Versions,
+	versions: Versions,
 }
 
 #[derive(Debug, Deserialize)]
 struct Versions {
-    version: Vec<String>,
+	version: Vec<String>,
 }
 
 /// returns ["mc_version": ["array_of": {"original_loader_version", "parsed_loader_version", "is_neoforge"}]]
@@ -577,10 +592,9 @@ async fn fetch_forge_metadata(
 	url: Option<&str>,
 	semaphore: Arc<Semaphore>,
 ) -> crate::Result<HashMap<String, Vec<(String, String, bool)>>> {
-	let metadata: HashMap<String, Vec<String>> = serde_json::from_slice(&download_file(
-		url.unwrap_or(DEFAULT_FORGE_MAVEN_METADATA_URL),
-		None, semaphore,
-	).await?)?;
+	let metadata: HashMap<String, Vec<String>> = serde_json::from_slice(
+		&download_file(url.unwrap_or(DEFAULT_FORGE_MAVEN_METADATA_URL), None, semaphore).await?,
+	)?;
 
 	let mut map: HashMap<String, Vec<(String, String, bool)>> = HashMap::new();
 
@@ -591,8 +605,7 @@ async fn fetch_forge_metadata(
 			let loader_version = loader_version_full.split('-').nth(1);
 
 			if let Some(loader_version_raw) = loader_version {
-				let split =
-					loader_version_raw.split('.').collect::<Vec<&str>>();
+				let split = loader_version_raw.split('.').collect::<Vec<&str>>();
 				let loader_version = if split.len() >= 4 {
 					if split[0].parse::<i32>().unwrap_or(0) < 6 {
 						format!("{}.{}.{}", split[0], split[1], split[3])
@@ -617,11 +630,11 @@ async fn fetch_forge_metadata(
 async fn fetch_neo_metadata(
 	semaphore: Arc<Semaphore>,
 ) -> crate::Result<HashMap<String, Vec<(String, String, bool)>>> {
-	async fn fetch_values(
-		url: &str,
-		semaphore: Arc<Semaphore>,
-	) -> crate::Result<Metadata> {
-		Ok(serde_xml_rs::from_str(&String::from_utf8(download_file(url, None, semaphore).await?.to_vec()).unwrap_or_default())?)
+	async fn fetch_values(url: &str, semaphore: Arc<Semaphore>) -> crate::Result<Metadata> {
+		Ok(serde_xml_rs::from_str(
+			&String::from_utf8(download_file(url, None, semaphore).await?.to_vec())
+				.unwrap_or_default(),
+		)?)
 	}
 
 	let forge_values = fetch_values(DEFAULT_NEO_MAVEN_METADATA_URL_1, semaphore.clone()).await?;
@@ -633,7 +646,11 @@ async fn fetch_neo_metadata(
 		let parts: Vec<&str> = value.split('-').collect();
 
 		if parts.len() == 2 {
-			map.entry(parts[0].to_string()).or_default().push((original, parts[1].to_string(), false));
+			map.entry(parts[0].to_string()).or_default().push((
+				original,
+				parts[1].to_string(),
+				false,
+			));
 		}
 	}
 
@@ -644,7 +661,11 @@ async fn fetch_neo_metadata(
 		if let Some(major) = parts.next() {
 			if let Some(minor) = parts.next() {
 				let game_version = format!("1.{}.{}", major, minor);
-				map.entry(game_version.clone()).or_default().push((original.clone(), format!("{}-{}", game_version, original), true));
+				map.entry(game_version.clone()).or_default().push((
+					original.clone(),
+					format!("{}-{}", game_version, original),
+					true,
+				));
 			}
 		}
 	}
@@ -655,51 +676,51 @@ async fn fetch_neo_metadata(
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 struct ForgeInstallerProfileInstallDataV1 {
-    pub mirror_list: String,
-    pub target: String,
-    /// Path to the Forge universal library
-    pub file_path: String,
-    pub logo: String,
-    pub welcome: String,
-    pub version: String,
-    /// Maven coordinates of the Forge universal library
-    pub path: String,
-    pub profile_name: String,
-    pub minecraft: String,
+	pub mirror_list: String,
+	pub target: String,
+	/// Path to the Forge universal library
+	pub file_path: String,
+	pub logo: String,
+	pub welcome: String,
+	pub version: String,
+	/// Maven coordinates of the Forge universal library
+	pub path: String,
+	pub profile_name: String,
+	pub minecraft: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 struct ForgeInstallerProfileManifestV1 {
-    pub id: String,
-    pub libraries: Vec<Library>,
-    pub main_class: Option<String>,
-    pub minecraft_arguments: Option<String>,
-    pub release_time: DateTime<Utc>,
-    pub time: DateTime<Utc>,
-    pub type_: VersionType,
-    pub assets: Option<String>,
-    pub inherits_from: Option<String>,
-    pub jar: Option<String>,
+	pub id: String,
+	pub libraries: Vec<Library>,
+	pub main_class: Option<String>,
+	pub minecraft_arguments: Option<String>,
+	pub release_time: DateTime<Utc>,
+	pub time: DateTime<Utc>,
+	pub type_: VersionType,
+	pub assets: Option<String>,
+	pub inherits_from: Option<String>,
+	pub jar: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 struct ForgeInstallerProfileV1 {
-    pub install: ForgeInstallerProfileInstallDataV1,
-    pub version_info: ForgeInstallerProfileManifestV1,
+	pub install: ForgeInstallerProfileInstallDataV1,
+	pub version_info: ForgeInstallerProfileManifestV1,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 struct ForgeInstallerProfileV2 {
-    pub spec: i32,
-    pub profile: String,
-    pub version: String,
-    pub json: String,
-    pub path: Option<String>,
-    pub minecraft: String,
-    pub data: HashMap<String, SidedDataEntry>,
-    pub libraries: Vec<Library>,
-    pub processors: Vec<Processor>,
+	pub spec: i32,
+	pub profile: String,
+	pub version: String,
+	pub json: String,
+	pub path: Option<String>,
+	pub minecraft: String,
+	pub data: HashMap<String, SidedDataEntry>,
+	pub libraries: Vec<Library>,
+	pub processors: Vec<Processor>,
 }
