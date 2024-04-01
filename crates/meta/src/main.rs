@@ -17,10 +17,10 @@ async fn main() {
 	loop {
 		timer.tick().await;
 
-		let mut uploded_files = Vec::new();
+		let mut uploaded_files = Vec::new();
 
 		let versions =
-			match api::minecraft::retrieve_data(&mut uploded_files, semaphore.clone()).await {
+			match api::minecraft::retrieve_data(&mut uploaded_files, semaphore.clone()).await {
 				Ok(res) => Some(res),
 				Err(err) => {
 					error!("{:?}", err);
@@ -30,36 +30,31 @@ async fn main() {
 			};
 
 		if let Some(manifest) = versions {
-			match api::fabric::retrieve_data(&manifest, &mut uploded_files, semaphore.clone()).await
+			match api::fabric::retrieve_data(&manifest, &mut uploaded_files, semaphore.clone()).await
 			{
 				Ok(..) => {}
 				Err(err) => error!("{:?}", err),
 			};
 
-			match api::forge::retrieve_data(&manifest, &mut uploded_files, semaphore.clone()).await
+			match api::forge::retrieve_data(&manifest, &mut uploaded_files, semaphore.clone()).await
 			{
 				Ok(..) => {}
 				Err(err) => error!("{:?}", err),
 			};
 
-			match api::quilt::retrieve_data(&manifest, &mut uploded_files, semaphore.clone()).await
+			match api::quilt::retrieve_data(&manifest, &mut uploaded_files, semaphore.clone()).await
 			{
 				Ok(..) => {}
 				Err(err) => error!("{:?}", err),
 			};
 
-			match api::legacy_fabric::retrieve_data(
-				&manifest,
-				&mut uploaded_files,
-				semaphore.clone(),
-			)
-			.await
+			match api::legacy_fabric::retrieve_data(&manifest, &mut uploaded_files, semaphore.clone()).await
 			{
 				Ok(..) => {}
 				Err(err) => error!("{:?}", err),
 			};
 
-			match api::neo::retrieve_data(&manifest, &mut uploded_files, semaphore.clone()).await {
+			match api::neo::retrieve_data(&manifest, &mut uploaded_files, semaphore.clone()).await {
 				Ok(..) => {}
 				Err(err) => error!("{:?}", err),
 			};
