@@ -21,4 +21,4 @@ chrono.workspace = true
 bytes.workspace = true
 thiserror.workspace = true
 tokio.workspace = true
-sha1.workspace = true
+sha1_smol.workspace = true

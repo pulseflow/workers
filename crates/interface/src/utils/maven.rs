@@ -136,7 +136,7 @@ pub async fn download_file(url: &str, sha1: Option<&str>) -> Result<bytes::Bytes
 
 /// Computes a checksum of the input Bytes
 pub async fn get_hash(bytes: bytes::Bytes) -> Result<String, Error> {
-	let hash = tokio::task::spawn_blocking(|| sha1::Sha1::from(bytes).hexdigest()).await?;
+	let hash = tokio::task::spawn_blocking(|| sha1_smol::Sha1::from(bytes).hexdigest()).await?;
 
 	Ok(hash)
 }
