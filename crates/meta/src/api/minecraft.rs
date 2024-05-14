@@ -11,7 +11,7 @@ pub async fn retrieve_data(
 	uploaded_files: &mut Vec<String>,
 	semaphore: Arc<Semaphore>,
 ) -> crate::Result<VersionManifest> {
-	let old_manifest = fetch_version_manifest(Some(&*&format_url(&format!(
+	let old_manifest = fetch_version_manifest(Some(&format_url(&format!(
 		"minecraft/v{}/manifest.json",
 		CURRENT_FORMAT_VERSION,
 	))))
@@ -128,7 +128,7 @@ pub async fn retrieve_data(
 							0,
 							minecraft::Version {
 								id: version_info.id.clone(),
-								type_: version_info.type_.clone(),
+								type_: version_info.type_,
 								url: format_url(&version_path),
 								time: version_info.time,
 								release_time: version_info.release_time,

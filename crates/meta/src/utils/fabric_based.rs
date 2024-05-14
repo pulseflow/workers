@@ -84,9 +84,9 @@ pub async fn retrieve_fabric_like_data(
 				x.id == DUMMY_REPLACE_STRING && x.loaders.iter().any(|x| x.id == loader.version)
 			}) {
 				loaders.push((
-					Box::new(loader.stable.unwrap_or_else(|| false)),
+					Box::new(loader.stable.unwrap_or(false)),
 					loader.version.clone(),
-					Box::new(if index == 0 { true } else { false }),
+					Box::new(index == 0),
 				))
 			}
 		}

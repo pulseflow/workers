@@ -29,7 +29,6 @@ pub fn collect_patch_files(dir: &str) -> anyhow::Result<String> {
 			if extension == "json" {
 				let file_contents = std::fs::read_to_string(file_path).unwrap();
 				let patch: LibraryPatch = serde_json::from_str(&file_contents)
-					.map_err(|err| return err)
 					.unwrap();
 				patches.push(patch);
 			}
@@ -64,7 +63,7 @@ pub fn uncollect_patch_files(dir: &str, file: &str) -> anyhow::Result<()> {
 	for (file_name, patch) in &result {
 		let writable = serde_json::to_string(patch).expect("could not parse json to string");
 
-		std::fs::write(output.join(&file_name), writable).expect("failed to write file");
+		std::fs::write(output.join(file_name), writable).expect("failed to write file");
 	}
 
 	Ok(())
