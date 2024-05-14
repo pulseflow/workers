@@ -1,10 +1,8 @@
-use interpulse::{
-	api::minecraft::{
-		self, fetch_version_info, fetch_version_manifest, merge_partial_library, Library,
-		VersionManifest, CURRENT_FORMAT_VERSION,
-	},
-	utils::get_hash,
+use interpulse::api::minecraft::{
+	self, fetch_version_info, fetch_version_manifest, merge_partial_library, Library,
+	VersionManifest, CURRENT_FORMAT_VERSION,
 };
+use interpulse::utils::get_hash;
 use meta_patcher::patch::LibraryPatch;
 
 use crate::utils::*;
@@ -102,8 +100,10 @@ pub async fn retrieve_data(
 
 				let version_info_hash =
 					get_hash(bytes::Bytes::from(serde_json::to_vec(&version_info)?)).await?;
-				let version_path =
-					format!("minecraft/v{}/versions/{}.json", CURRENT_FORMAT_VERSION, version.id);
+				let version_path = format!(
+					"minecraft/v{}/versions/{}.json",
+					CURRENT_FORMAT_VERSION, version.id
+				);
 				let assets_path = format!(
 					"minecraft/v{}/assets/{}.json",
 					CURRENT_FORMAT_VERSION, version_info.asset_index.id
@@ -112,8 +112,10 @@ pub async fn retrieve_data(
 
 				{
 					let mut cloned_manifest = cloned_manifest_mutex.lock().await;
-					if let Some(position) =
-						cloned_manifest.versions.iter().position(|x| version.id == x.id)
+					if let Some(position) = cloned_manifest
+						.versions
+						.iter()
+						.position(|x| version.id == x.id)
 					{
 						cloned_manifest.versions[position].url = format_url(&version_path);
 						cloned_manifest.versions[position].assets_index_sha1 =
@@ -226,7 +228,9 @@ pub async fn retrieve_data(
 	let elapsed = now.elapsed();
 	info!("elapsed: {:.2?}", elapsed);
 
-	Ok(Arc::try_unwrap(cloned_manifest).map_err(|_| crate::Error::ArcError)?.into_inner())
+	Ok(Arc::try_unwrap(cloned_manifest)
+		.map_err(|_| crate::Error::ArcError)?
+		.into_inner())
 }
 
 fn fetch_library_patches() -> crate::Result<Vec<meta_patcher::patch::LibraryPatch>> {

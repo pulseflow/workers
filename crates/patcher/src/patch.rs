@@ -1,7 +1,5 @@
-use interpulse::{
-	api::minecraft::{Library, PartialLibrary},
-	utils::prelude::*,
-};
+use interpulse::api::minecraft::{Library, PartialLibrary};
+use interpulse::utils::prelude::*;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -30,8 +28,9 @@ pub fn collect_patch_files(dir: &str) -> anyhow::Result<String> {
 		if let Some(extension) = file_path.extension() {
 			if extension == "json" {
 				let file_contents = std::fs::read_to_string(file_path).unwrap();
-				let patch: LibraryPatch =
-					serde_json::from_str(&file_contents).map_err(|err| return err).unwrap();
+				let patch: LibraryPatch = serde_json::from_str(&file_contents)
+					.map_err(|err| return err)
+					.unwrap();
 				patches.push(patch);
 			}
 		}

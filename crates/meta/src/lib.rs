@@ -17,7 +17,10 @@ pub enum Error {
 	#[error("failure during tokio task")]
 	TaskError(#[from] tokio::task::JoinError),
 	#[error("could not upload to S3")]
-	S3Error { inner: s3::error::S3Error, file: String },
+	S3Error {
+		inner: s3::error::S3Error,
+		file: String,
+	},
 	#[error("could not parse version as semver; {0}")]
 	SemVerError(#[from] semver::Error),
 	#[error("could not read zip file; {0}")]

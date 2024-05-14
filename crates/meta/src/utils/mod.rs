@@ -1,17 +1,14 @@
 pub use log::{error, info, warn};
 pub use serde::{Deserialize, Serialize};
-pub use std::{
-	sync::Arc,
-	time::{Duration, Instant},
-};
+pub use std::sync::Arc;
+pub use std::time::{Duration, Instant};
 pub use tokio::sync::{Mutex, RwLock, Semaphore};
 
 pub mod fabric_based;
 pub mod forge_based;
 
 use s3::creds::Credentials;
-use s3::Bucket;
-use s3::Region;
+use s3::{Bucket, Region};
 
 lazy_static::lazy_static! {
 	static ref CLIENT : Bucket = {
@@ -47,11 +44,16 @@ pub async fn upload_file_to_bucket(
 
 	for attempt in 1..=4 {
 		let result = if let Some(ref content_type) = content_type {
-			CLIENT.put_object_with_content_type(key.clone(), &bytes, content_type).await
+			CLIENT
+				.put_object_with_content_type(key.clone(), &bytes, content_type)
+				.await
 		} else {
 			CLIENT.put_object(key.clone(), &bytes).await
 		}
-		.map_err(|err| crate::Error::S3Error { inner: err, file: path.clone() });
+		.map_err(|err| crate::Error::S3Error {
+			inner: err,
+			file: path.clone(),
+		});
 
 		match result {
 			Ok(_) => {
@@ -120,7 +122,11 @@ pub fn check_env_vars() -> bool {
 }
 
 fn check_var<T: std::str::FromStr>(var: &str) -> bool {
-	if dotenvy::var(var).ok().and_then(|s| s.parse::<T>().ok()).is_none() {
+	if dotenvy::var(var)
+		.ok()
+		.and_then(|s| s.parse::<T>().ok())
+		.is_none()
+	{
 		warn!(
 			"variable `{}` missing in dotenvy or not of type `{}`",
 			var,

@@ -1,8 +1,6 @@
 use clap::Parser;
-use meta_patcher::{
-	cli::{Cli, Commands},
-	patch::{collect_patch_files, uncollect_patch_files},
-};
+use meta_patcher::cli::{Cli, Commands};
+use meta_patcher::patch::{collect_patch_files, uncollect_patch_files};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

@@ -1,16 +1,13 @@
-use std::{collections::HashMap, io::Read};
+use std::collections::HashMap;
+use std::io::Read;
 
 use chrono::{DateTime, Utc};
-use interpulse::{
-	api::{
-		minecraft::{Argument, ArgumentType, Library, VersionManifest, VersionType},
-		modded::{
-			fetch_manifest, LoaderVersion, Manifest, PartialVersionInfo, Processor, SidedDataEntry,
-			CURRENT_FORGE_FORMAT_VERSION, CURRENT_NEOFORGE_FORMAT_VERSION,
-		},
-	},
-	utils::get_path_from_artifact,
+use interpulse::api::minecraft::{Argument, ArgumentType, Library, VersionManifest, VersionType};
+use interpulse::api::modded::{
+	fetch_manifest, LoaderVersion, Manifest, PartialVersionInfo, Processor, SidedDataEntry,
+	CURRENT_FORGE_FORMAT_VERSION, CURRENT_NEOFORGE_FORMAT_VERSION,
 };
+use interpulse::utils::get_path_from_artifact;
 use semver::{Version, VersionReq};
 
 use crate::utils::*;
@@ -542,15 +539,26 @@ pub async fn retrieve_forge_like_data(
 						.iter()
 						.position(|z| y.id == z.1)
 						.unwrap_or_default()
-						.cmp(&loader_versions.iter().position(|z| x.id == z.1).unwrap_or_default())
+						.cmp(
+							&loader_versions
+								.iter()
+								.position(|z| x.id == z.1)
+								.unwrap_or_default(),
+						)
 				});
 				version.loaders.reverse();
 			}
 		}
 
 		upload_file_to_bucket(
-			format!("{}/v{}/manifest.json", loader_name.as_str(), loader_name.as_format()),
-			serde_json::to_vec(&Manifest { game_versions: versions })?,
+			format!(
+				"{}/v{}/manifest.json",
+				loader_name.as_str(),
+				loader_name.as_format()
+			),
+			serde_json::to_vec(&Manifest {
+				game_versions: versions,
+			})?,
 			Some("application/json".to_string()),
 			uploaded_files_mutex.as_ref(),
 			semaphore,
@@ -593,7 +601,12 @@ async fn fetch_forge_metadata(
 	semaphore: Arc<Semaphore>,
 ) -> crate::Result<HashMap<String, Vec<(String, String, bool)>>> {
 	let metadata: HashMap<String, Vec<String>> = serde_json::from_slice(
-		&download_file(url.unwrap_or(DEFAULT_FORGE_MAVEN_METADATA_URL), None, semaphore).await?,
+		&download_file(
+			url.unwrap_or(DEFAULT_FORGE_MAVEN_METADATA_URL),
+			None,
+			semaphore,
+		)
+		.await?,
 	)?;
 
 	let mut map: HashMap<String, Vec<(String, String, bool)>> = HashMap::new();

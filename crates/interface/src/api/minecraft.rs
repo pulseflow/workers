@@ -93,7 +93,9 @@ pub const VERSION_MANIFEST_URL: &str =
 
 /// Fetches a version manifest from the specified URL. If no URL is specified, the default is used.
 pub async fn fetch_version_manifest(url: Option<&str>) -> Result<VersionManifest, Error> {
-	Ok(serde_json::from_slice(&download_file(url.unwrap_or(VERSION_MANIFEST_URL), None).await?)?)
+	Ok(serde_json::from_slice(
+		&download_file(url.unwrap_or(VERSION_MANIFEST_URL), None).await?,
+	)?)
 }
 
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
@@ -480,7 +482,9 @@ pub struct VersionInfo {
 
 /// Fetches detailed information about a version from the manifest
 pub async fn fetch_version_info(version: &Version) -> Result<VersionInfo, Error> {
-	Ok(serde_json::from_slice(&download_file(&version.url, Some(&version.sha1)).await?)?)
+	Ok(serde_json::from_slice(
+		&download_file(&version.url, Some(&version.sha1)).await?,
+	)?)
 }
 
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]

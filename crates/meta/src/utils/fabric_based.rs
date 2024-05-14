@@ -70,8 +70,11 @@ pub async fn retrieve_fabric_like_data(
 	.await
 	.ok();
 
-	let mut versions =
-		if let Some(old_manifest) = old_manifest { old_manifest.game_versions } else { Vec::new() };
+	let mut versions = if let Some(old_manifest) = old_manifest {
+		old_manifest.game_versions
+	} else {
+		Vec::new()
+	};
 	let loaders_mutex = RwLock::new(Vec::new());
 
 	{
@@ -94,24 +97,25 @@ pub async fn retrieve_fabric_like_data(
 	let loader_version_mutex = Mutex::new(Vec::new());
 	let uploaded_files_mutex = Arc::new(Mutex::new(Vec::new()));
 
-	let loader_versions = futures::future::try_join_all(
-		loaders_mutex.read().await.clone().into_iter().map(|(stable, loader, skip_upload)| async {
-			let version = fetch_fabric_like_version(
-				DUMMY_GAME_VERSION,
-				&loader,
-				semaphore.clone(),
-				loader_name.as_meta_url(),
-			)
-			.await?;
-			Ok::<(Box<bool>, String, PartialVersionInfo, Box<bool>), crate::Error>((
-				stable,
-				loader,
-				version,
-				skip_upload,
-			))
-		}),
-	)
-	.await?;
+	let loader_versions =
+		futures::future::try_join_all(loaders_mutex.read().await.clone().into_iter().map(
+			|(stable, loader, skip_upload)| async {
+				let version = fetch_fabric_like_version(
+					DUMMY_GAME_VERSION,
+					&loader,
+					semaphore.clone(),
+					loader_name.as_meta_url(),
+				)
+				.await?;
+				Ok::<(Box<bool>, String, PartialVersionInfo, Box<bool>), crate::Error>((
+					stable,
+					loader,
+					version,
+					skip_upload,
+				))
+			},
+		))
+		.await?;
 
 	let visited_artifacts_mutex = Arc::new(Mutex::new(Vec::new()));
 	futures::future::try_join_all(loader_versions.into_iter().map(
@@ -185,7 +189,8 @@ pub async fn retrieve_fabric_like_data(
 					let artifact = download_file(
 						&format!(
 							"{}{}",
-							lib.url.unwrap_or_else(|| loader_name.as_maven_url().to_string()),
+							lib.url
+								.unwrap_or_else(|| loader_name.as_maven_url().to_string()),
 							artifact_path
 						),
 						None,
@@ -222,7 +227,10 @@ pub async fn retrieve_fabric_like_data(
 				version_path.clone(),
 				serde_json::to_vec(&PartialVersionInfo {
 					arguments: version.arguments.as_ref().cloned(),
-					id: version.id.replace(DUMMY_GAME_VERSION, DUMMY_REPLACE_STRING).clone(),
+					id: version
+						.id
+						.replace(DUMMY_GAME_VERSION, DUMMY_REPLACE_STRING)
+						.clone(),
 					main_class: version.main_class.as_ref().cloned(),
 					release_time: version.release_time,
 					time: version.time,
@@ -287,7 +295,13 @@ pub async fn retrieve_fabric_like_data(
 			.iter()
 			.position(|z| x.id == z.id)
 			.unwrap_or_default()
-			.cmp(&minecraft_versions.versions.iter().position(|z| y.id == z.id).unwrap_or_default())
+			.cmp(
+				&minecraft_versions
+					.versions
+					.iter()
+					.position(|z| y.id == z.id)
+					.unwrap_or_default(),
+			)
 	});
 
 	for version in &mut versions {
@@ -296,13 +310,25 @@ pub async fn retrieve_fabric_like_data(
 				.iter()
 				.position(|z| x.id == *z.version)
 				.unwrap_or_default()
-				.cmp(&list.loader.iter().position(|z| y.id == z.version).unwrap_or_default())
+				.cmp(
+					&list
+						.loader
+						.iter()
+						.position(|z| y.id == z.version)
+						.unwrap_or_default(),
+				)
 		})
 	}
 
 	upload_file_to_bucket(
-		format!("{}/v{}/manifest.json", loader_name.as_str(), loader_name.as_format()),
-		serde_json::to_vec(&Manifest { game_versions: versions })?,
+		format!(
+			"{}/v{}/manifest.json",
+			loader_name.as_str(),
+			loader_name.as_format()
+		),
+		serde_json::to_vec(&Manifest {
+			game_versions: versions,
+		})?,
 		Some("application/json".to_string()),
 		&uploaded_files_mutex,
 		semaphore,
@@ -375,6 +401,11 @@ pub async fn fetch_fabric_like_versions<T: for<'a> serde::Deserialize<'a>>(
 	meta_url: &str,
 ) -> crate::Result<T> {
 	Ok(serde_json::from_slice(
-		&download_file(url.unwrap_or(&*format!("{}/versions", meta_url)), None, semaphore).await?,
+		&download_file(
+			url.unwrap_or(&*format!("{}/versions", meta_url)),
+			None,
+			semaphore,
+		)
+		.await?,
 	)?)
 }

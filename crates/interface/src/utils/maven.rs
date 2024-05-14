@@ -95,7 +95,10 @@ pub async fn download_file(url: &str, sha1: Option<&str>) -> Result<bytes::Bytes
 		.timeout(std::time::Duration::from_secs(15))
 		.default_headers(headers)
 		.build()
-		.map_err(|err| Error::FetchError { inner: err, item: url.to_string() })?;
+		.map_err(|err| Error::FetchError {
+			inner: err,
+			item: url.to_string(),
+		})?;
 
 	for attempt in 1..=4 {
 		let result = client.get(url).send().await;
@@ -123,11 +126,19 @@ pub async fn download_file(url: &str, sha1: Option<&str>) -> Result<bytes::Bytes
 				} else if attempt <= 3 {
 					continue;
 				} else if let Err(err) = bytes {
-					return Err(Error::FetchError { inner: err, item: url.to_string() });
+					return Err(Error::FetchError {
+						inner: err,
+						item: url.to_string(),
+					});
 				}
 			}
 			Err(_) if attempt <= 3 => continue,
-			Err(err) => return Err(Error::FetchError { inner: err, item: url.to_string() }),
+			Err(err) => {
+				return Err(Error::FetchError {
+					inner: err,
+					item: url.to_string(),
+				})
+			}
 		}
 	}
 
