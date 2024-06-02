@@ -28,8 +28,7 @@ pub fn collect_patch_files(dir: &str) -> anyhow::Result<String> {
 		if let Some(extension) = file_path.extension() {
 			if extension == "json" {
 				let file_contents = std::fs::read_to_string(file_path).unwrap();
-				let patch: LibraryPatch = serde_json::from_str(&file_contents)
-					.unwrap();
+				let patch: LibraryPatch = serde_json::from_str(&file_contents).unwrap();
 				patches.push(patch);
 			}
 		}
