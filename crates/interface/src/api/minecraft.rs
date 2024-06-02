@@ -194,8 +194,8 @@ pub enum RuleAction {
 }
 
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
-#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Hash, Clone)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "kebab-case")]
 /// An enum representing the different types of operating systems
 pub enum Os {
