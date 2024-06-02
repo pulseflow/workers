@@ -21,6 +21,7 @@ pub const DUMMY_REPLACE_STRING: &str = "${interpulse.gameVersion}";
 
 /// A data variable entry that depends on the side of the installation
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SidedDataEntry {
 	/// The value on the client
@@ -41,6 +42,7 @@ where
 }
 
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 /// A partial version returned by fabric meta
@@ -81,6 +83,7 @@ pub struct PartialVersionInfo {
 
 /// A processor to be ran after downloading the files
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Processor {
 	/// Maven coordinates for the JAR library of this processor.
@@ -173,6 +176,7 @@ pub fn merge_partial_version(partial: PartialVersionInfo, merge: VersionInfo) ->
 }
 
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 /// A manifest containing information about a mod loader's versions
@@ -182,6 +186,7 @@ pub struct Manifest {
 }
 
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 ///  A game version of Minecraft
 pub struct Version {
@@ -194,6 +199,7 @@ pub struct Version {
 }
 
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 /// A version of a Minecraft mod loader
 pub struct LoaderVersion {

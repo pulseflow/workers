@@ -9,6 +9,7 @@ use bincode::{Decode, Encode};
 pub const CURRENT_FORMAT_VERSION: usize = 0;
 
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 #[serde(rename_all = "snake_case")]
 /// The version type
@@ -36,6 +37,7 @@ impl VersionType {
 }
 
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 /// A game version of Minecraft
@@ -68,6 +70,7 @@ pub struct Version {
 }
 
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 /// The latest snapshot and release of the game
 pub struct LatestVersion {
@@ -78,6 +81,7 @@ pub struct LatestVersion {
 }
 
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 /// Data of all game versions of Minecraft
 pub struct VersionManifest {
@@ -99,6 +103,7 @@ pub async fn fetch_version_manifest(url: Option<&str>) -> Result<VersionManifest
 }
 
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 /// Information about the assets of the game
@@ -116,6 +121,7 @@ pub struct AssetIndex {
 }
 
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Hash)]
 #[serde(rename_all = "snake_case")]
 /// The type of download
@@ -133,6 +139,7 @@ pub enum DownloadType {
 }
 
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug)]
 /// Download information of a file
 pub struct Download {
@@ -145,6 +152,7 @@ pub struct Download {
 }
 
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 /// Download information of a library
 pub struct LibraryDownload {
@@ -160,6 +168,7 @@ pub struct LibraryDownload {
 }
 
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 /// A list of files that should be downloaded for libraries
 pub struct LibraryDownloads {
@@ -173,6 +182,7 @@ pub struct LibraryDownloads {
 }
 
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "snake_case")]
 /// The action a rule can follow
@@ -184,6 +194,7 @@ pub enum RuleAction {
 }
 
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Hash, Clone)]
 #[serde(rename_all = "kebab-case")]
 /// An enum representing the different types of operating systems
@@ -207,6 +218,7 @@ pub enum Os {
 }
 
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 /// A rule which depends on what OS the user is on
 pub struct OsRule {
@@ -222,6 +234,7 @@ pub struct OsRule {
 }
 
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 /// A rule which depends on the toggled features of the launcher
 pub struct FeatureRule {
@@ -245,6 +258,7 @@ pub struct FeatureRule {
 }
 
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 /// A rule deciding whether a file is downloaded, an argument is used, etc.
 pub struct Rule {
@@ -259,6 +273,7 @@ pub struct Rule {
 }
 
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 /// Information delegating the extraction of the library
 pub struct LibraryExtract {
@@ -268,6 +283,7 @@ pub struct LibraryExtract {
 }
 
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 /// Information about the java version the game needs
@@ -279,6 +295,7 @@ pub struct JavaVersion {
 }
 
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 /// A library which the game relies on to run
 pub struct Library {
@@ -398,6 +415,7 @@ fn default_include_in_classpath() -> bool {
 }
 
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(untagged)]
 /// A container for an argument or multiple arguments
@@ -409,6 +427,7 @@ pub enum ArgumentValue {
 }
 
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(untagged)]
 /// A command line argument passed to a program
@@ -425,6 +444,7 @@ pub enum Argument {
 }
 
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Hash, Clone, Copy)]
 #[serde(rename_all = "snake_case")]
 /// The type of argument
@@ -436,6 +456,7 @@ pub enum ArgumentType {
 }
 
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 /// Information about a version
@@ -488,6 +509,7 @@ pub async fn fetch_version_info(version: &Version) -> Result<VersionInfo, Error>
 }
 
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug)]
 /// An asset of the game
 pub struct Asset {
@@ -498,6 +520,7 @@ pub struct Asset {
 }
 
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug)]
 /// An index containing all assets the game needs
 pub struct AssetsIndex {
