@@ -13,14 +13,13 @@ license.workspace = true
 interpulse = { path = "../interface" }
 meta_patcher = { path = "../patcher" }
 
-dotenvy = "0.15"
-log = "0.4"
-env_logger = "0.11"
-serde-xml-rs = "0.6"
-zip = "0.6"
-semver = "1.0"
-rust-s3 = "0.33"
-
+dotenvy.workspace = true
+log.workspace = true
+env_logger.workspace = true
+serde-xml-rs.workspace = true
+zip.workspace = true
+semver.workspace = true
+rust-s3.workspace = true
 tokio.workspace = true
 futures.workspace = true
 serde.workspace = true
