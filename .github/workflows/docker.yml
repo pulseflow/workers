@@ -11,6 +11,9 @@ jobs:
   docker:
     name: Build and Push Docker image
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout
