@@ -1,6 +1,6 @@
 use crate::utils::{
-	format_url, upload_file_to_bucket, upload_url_to_bucket_mirrors, REQWEST_CLIENT,
-	check_env_vars, Error, ErrorKind, Result, MirrorArtifact, UploadFile
+	check_env_vars, format_url, upload_file_to_bucket, upload_url_to_bucket_mirrors, Error,
+	ErrorKind, MirrorArtifact, Result, UploadFile, REQWEST_CLIENT,
 };
 use dashmap::DashMap;
 use std::sync::Arc;
@@ -11,7 +11,6 @@ use tracing_subscriber::{fmt, EnvFilter};
 
 mod api;
 pub mod utils;
-
 
 #[tokio::main]
 async fn main() -> Result<()> {

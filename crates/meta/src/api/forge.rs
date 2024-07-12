@@ -1,5 +1,7 @@
-use crate::utils::{download_file, fetch_json, fetch_xml, format_url};
-use crate::utils::{insert_mirrored_artifact, Error, MirrorArtifact, UploadFile};
+use crate::utils::{
+	download_file, fetch_json, fetch_xml, format_url, insert_mirrored_artifact, Error,
+	MirrorArtifact, UploadFile,
+};
 use chrono::{DateTime, Utc};
 use dashmap::DashMap;
 use futures::io::Cursor;

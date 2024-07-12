@@ -1,5 +1,7 @@
-use crate::utils::{download_file, fetch_json, format_url};
-use crate::utils::{insert_mirrored_artifact, Error, MirrorArtifact, UploadFile};
+use crate::utils::{
+	download_file, fetch_json, format_url, insert_mirrored_artifact, Error, MirrorArtifact,
+	UploadFile,
+};
 use dashmap::DashMap;
 use interpulse::api::modded::{Manifest, PartialVersionInfo, DUMMY_REPLACE_STRING};
 use serde::Deserialize;

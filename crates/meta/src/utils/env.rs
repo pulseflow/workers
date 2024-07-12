@@ -1,6 +1,6 @@
-use interpulse::utils::get_path_from_artifact;
-use dashmap::{DashMap, DashSet};
 use crate::Result;
+use dashmap::{DashMap, DashSet};
+use interpulse::utils::get_path_from_artifact;
 
 pub struct UploadFile {
 	pub file: bytes::Bytes,
