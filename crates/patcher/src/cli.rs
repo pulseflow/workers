@@ -10,19 +10,16 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
-	/// Merge JSON Patch files together
+	/// merge a directory of unmerged patch filesinto a merged patch file
 	MergeFiles(DirectoryArgs),
-	/// Unmerge JSON Patch files
+	/// unmerge a merged patch file into a directory contaning each patch file
 	UnmergeFiles(DirectoryArgs),
 }
 
 #[derive(Args)]
 pub struct DirectoryArgs {
-	/// The directory containing the patch files
-	pub dir: String,
-	/// The destination directory
-	pub dest: String,
+	/// the directory containing the patch files
+	pub dir: Option<String>,
+	/// the directory or file containing the merged patch files
+	pub dest: Option<String>,
 }
-
-#[derive(Args)]
-pub struct NoArgs {}

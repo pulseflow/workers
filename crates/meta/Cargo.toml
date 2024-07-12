@@ -14,11 +14,8 @@ interpulse = { path = "../interface" }
 meta_patcher = { path = "../patcher" }
 
 dotenvy.workspace = true
-log.workspace = true
-env_logger.workspace = true
 serde-xml-rs.workspace = true
-zip.workspace = true
-semver.workspace = true
+async_zip.workspace = true
 rust-s3.workspace = true
 tokio.workspace = true
 futures.workspace = true
@@ -29,3 +26,12 @@ thiserror.workspace = true
 reqwest.workspace = true
 chrono.workspace = true
 bytes.workspace = true
+dashmap.workspace = true
+sha1_smol.workspace = true
+indexmap.workspace = true
+itertools.workspace = true
+tracing-error.workspace = true
+
+tracing.workspace = true
+tracing-subscriber.workspace = true
+tracing-futures.workspace = true

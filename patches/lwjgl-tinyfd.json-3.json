@@ -1,1 +1,28 @@
-{"_comment":"Add linux-arm32 support for LWJGL 3.3.1","match":["org.lwjgl:lwjgl-tinyfd:3.3.1"],"additionalLibraries":[{"downloads":{"artifact":{"sha1":"d53d331e859217a61298fcbcf8d79137f3df345c","size":48061,"url":"https://build.lwjgl.org/release/3.3.1/bin/lwjgl-tinyfd/lwjgl-tinyfd-natives-linux-arm32.jar"}},"name":"org.lwjgl:lwjgl-tinyfd-natives-linux-arm32:3.3.1-lwjgl.1","rules":[{"action":"allow","os":{"name":"linux-arm32"}}],"include_in_classpath":true}]}
+{
+  "_comment": "Add linux-arm32 support for LWJGL 3.3.1",
+  "match": [
+    "org.lwjgl:lwjgl-tinyfd:3.3.1"
+  ],
+  "additionalLibraries": [
+    {
+      "downloads": {
+        "artifact": {
+          "sha1": "d53d331e859217a61298fcbcf8d79137f3df345c",
+          "size": 48061,
+          "url": "https://build.lwjgl.org/release/3.3.1/bin/lwjgl-tinyfd/lwjgl-tinyfd-natives-linux-arm32.jar"
+        }
+      },
+      "name": "org.lwjgl:lwjgl-tinyfd-natives-linux-arm32:3.3.1-lwjgl.1",
+      "rules": [
+        {
+          "action": "allow",
+          "os": {
+            "name": "linux-arm32"
+          }
+        }
+      ],
+      "include_in_classpath": true,
+      "downloadable": true
+    }
+  ]
+}

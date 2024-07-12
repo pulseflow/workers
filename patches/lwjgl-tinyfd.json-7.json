@@ -1,0 +1,28 @@
+{
+  "_comment": "Add linux-arm32 support for LWJGL 3.3.3",
+  "match": [
+    "org.lwjgl:lwjgl-tinyfd:3.3.3"
+  ],
+  "additionalLibraries": [
+    {
+      "downloads": {
+        "artifact": {
+          "sha1": "c2a0a05c82c4b9f69ded0b6ad5f417addea78ce2",
+          "size": 49495,
+          "url": "https://build.lwjgl.org/release/3.3.3/bin/lwjgl-tinyfd/lwjgl-tinyfd-natives-linux-arm32.jar"
+        }
+      },
+      "name": "org.lwjgl:lwjgl-tinyfd-natives-linux-arm32:3.3.3-lwjgl.1",
+      "rules": [
+        {
+          "action": "allow",
+          "os": {
+            "name": "linux-arm32"
+          }
+        }
+      ],
+      "include_in_classpath": true,
+      "downloadable": true
+    }
+  ]
+}

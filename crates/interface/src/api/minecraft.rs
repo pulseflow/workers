@@ -2,13 +2,9 @@ use crate::utils::prelude::*;
 
 use crate::api::modded::{Processor, SidedDataEntry};
 
-#[cfg(feature = "bincode")]
-use bincode::{Decode, Encode};
-
 /// The latest version of the format the model structs deserialize to
 pub const CURRENT_FORMAT_VERSION: usize = 0;
 
-#[cfg_attr(feature = "bincode", derive(Encode, Decode))]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 #[serde(rename_all = "snake_case")]
@@ -36,7 +32,6 @@ impl VersionType {
 	}
 }
 
-#[cfg_attr(feature = "bincode", derive(Encode, Decode))]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -50,26 +45,19 @@ pub struct Version {
 	/// A link to additional information about the version
 	pub url: String,
 	/// The latest time a file in this version was updated
-	#[cfg_attr(feature = "bincode", bincode(with_serde))]
 	pub time: DateTime<Utc>,
 	/// The time this version was released
-	#[cfg_attr(feature = "bincode", bincode(with_serde))]
 	pub release_time: DateTime<Utc>,
 	/// The SHA1 hash of the additional information about the version
 	pub sha1: String,
 	/// Whether the version supports the latest player safety features
 	pub compliance_level: u32,
 	#[serde(skip_serializing_if = "Option::is_none")]
-	/// The link to the assets index for this version
+	/// The SHA1 hash of the original unmodified Minecraft version's JSON
 	/// This is only available when using the Pulseflow mirror
-	pub assets_index_url: Option<String>,
-	#[serde(skip_serializing_if = "Option::is_none")]
-	/// The SHA1 hash of the assets index for this version
-	/// This is only available when using the Pulseflow mirror
-	pub assets_index_sha1: Option<String>,
+	pub original_sha1: Option<String>,
 }
 
-#[cfg_attr(feature = "bincode", derive(Encode, Decode))]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 /// The latest snapshot and release of the game
@@ -80,7 +68,6 @@ pub struct LatestVersion {
 	pub snapshot: String,
 }
 
-#[cfg_attr(feature = "bincode", derive(Encode, Decode))]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 /// Data of all game versions of Minecraft
@@ -95,14 +82,6 @@ pub struct VersionManifest {
 pub const VERSION_MANIFEST_URL: &str =
 	"https://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
 
-/// Fetches a version manifest from the specified URL. If no URL is specified, the default is used.
-pub async fn fetch_version_manifest(url: Option<&str>) -> Result<VersionManifest, Error> {
-	Ok(serde_json::from_slice(
-		&download_file(url.unwrap_or(VERSION_MANIFEST_URL), None).await?,
-	)?)
-}
-
-#[cfg_attr(feature = "bincode", derive(Encode, Decode))]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -120,7 +99,6 @@ pub struct AssetIndex {
 	pub url: String,
 }
 
-#[cfg_attr(feature = "bincode", derive(Encode, Decode))]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Hash)]
 #[serde(rename_all = "snake_case")]
@@ -138,7 +116,6 @@ pub enum DownloadType {
 	WindowsServer,
 }
 
-#[cfg_attr(feature = "bincode", derive(Encode, Decode))]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug)]
 /// Download information of a file
@@ -151,7 +128,6 @@ pub struct Download {
 	pub url: String,
 }
 
-#[cfg_attr(feature = "bincode", derive(Encode, Decode))]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 /// Download information of a library
@@ -167,7 +143,6 @@ pub struct LibraryDownload {
 	pub url: String,
 }
 
-#[cfg_attr(feature = "bincode", derive(Encode, Decode))]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 /// A list of files that should be downloaded for libraries
@@ -181,7 +156,6 @@ pub struct LibraryDownloads {
 	pub classifiers: Option<HashMap<String, LibraryDownload>>,
 }
 
-#[cfg_attr(feature = "bincode", derive(Encode, Decode))]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "snake_case")]
@@ -193,7 +167,6 @@ pub enum RuleAction {
 	Disallow,
 }
 
-#[cfg_attr(feature = "bincode", derive(Encode, Decode))]
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Hash, Clone)]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "kebab-case")]
@@ -217,7 +190,6 @@ pub enum Os {
 	Unknown,
 }
 
-#[cfg_attr(feature = "bincode", derive(Encode, Decode))]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 /// A rule which depends on what OS the user is on
@@ -233,7 +205,6 @@ pub struct OsRule {
 	pub arch: Option<String>,
 }
 
-#[cfg_attr(feature = "bincode", derive(Encode, Decode))]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 /// A rule which depends on the toggled features of the launcher
@@ -257,7 +228,6 @@ pub struct FeatureRule {
 	pub is_quick_play_realms: Option<bool>,
 }
 
-#[cfg_attr(feature = "bincode", derive(Encode, Decode))]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 /// A rule deciding whether a file is downloaded, an argument is used, etc.
@@ -272,7 +242,6 @@ pub struct Rule {
 	pub features: Option<FeatureRule>,
 }
 
-#[cfg_attr(feature = "bincode", derive(Encode, Decode))]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 /// Information delegating the extraction of the library
@@ -282,7 +251,6 @@ pub struct LibraryExtract {
 	pub exclude: Option<Vec<String>>,
 }
 
-#[cfg_attr(feature = "bincode", derive(Encode, Decode))]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -294,7 +262,6 @@ pub struct JavaVersion {
 	pub major_version: u32,
 }
 
-#[cfg_attr(feature = "bincode", derive(Encode, Decode))]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 /// A library which the game relies on to run
@@ -322,6 +289,9 @@ pub struct Library {
 	#[serde(default = "default_include_in_classpath")]
 	/// Whether the library should be included in the classpath at the game's launch
 	pub include_in_classpath: bool,
+	#[serde(default = "default_downloadable")]
+	/// Whether the library should be downloaded.
+	pub downloadable: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -413,8 +383,10 @@ pub fn merge_partial_library(partial: PartialLibrary, mut merge: Library) -> Lib
 fn default_include_in_classpath() -> bool {
 	true
 }
+fn default_downloadable() -> bool {
+	true
+}
 
-#[cfg_attr(feature = "bincode", derive(Encode, Decode))]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(untagged)]
@@ -426,7 +398,6 @@ pub enum ArgumentValue {
 	Many(Vec<String>),
 }
 
-#[cfg_attr(feature = "bincode", derive(Encode, Decode))]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(untagged)]
@@ -443,7 +414,6 @@ pub enum Argument {
 	},
 }
 
-#[cfg_attr(feature = "bincode", derive(Encode, Decode))]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Hash, Clone, Copy)]
 #[serde(rename_all = "snake_case")]
@@ -455,7 +425,6 @@ pub enum ArgumentType {
 	Jvm,
 }
 
-#[cfg_attr(feature = "bincode", derive(Encode, Decode))]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -485,10 +454,8 @@ pub struct VersionInfo {
 	/// The minimum version of the Minecraft Launcher that can run this version of the game
 	pub minimum_launcher_version: u32,
 	/// The time that the version was released
-	#[cfg_attr(feature = "bincode", bincode(with_serde))]
 	pub release_time: DateTime<Utc>,
 	/// The latest time a file in this version was updated
-	#[cfg_attr(feature = "bincode", bincode(with_serde))]
 	pub time: DateTime<Utc>,
 	#[serde(rename = "type")]
 	/// The type of version
@@ -501,14 +468,6 @@ pub struct VersionInfo {
 	pub processors: Option<Vec<Processor>>,
 }
 
-/// Fetches detailed information about a version from the manifest
-pub async fn fetch_version_info(version: &Version) -> Result<VersionInfo, Error> {
-	Ok(serde_json::from_slice(
-		&download_file(&version.url, Some(&version.sha1)).await?,
-	)?)
-}
-
-#[cfg_attr(feature = "bincode", derive(Encode, Decode))]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug)]
 /// An asset of the game
@@ -519,18 +478,10 @@ pub struct Asset {
 	pub size: u32,
 }
 
-#[cfg_attr(feature = "bincode", derive(Encode, Decode))]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug)]
 /// An index containing all assets the game needs
 pub struct AssetsIndex {
 	/// A hashmap containing the filename (key) and asset (value)
 	pub objects: HashMap<String, Asset>,
-}
-
-/// Fetches the assets index from the version info
-pub async fn fetch_assets_index(version: &VersionInfo) -> Result<AssetsIndex, Error> {
-	Ok(serde_json::from_slice(
-		&download_file(&version.asset_index.url, Some(&version.asset_index.sha1)).await?,
-	)?)
 }

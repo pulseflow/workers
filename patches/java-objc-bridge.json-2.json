@@ -1,1 +1,16 @@
-{"_comment":"Only allow osx-arm64 for existing java-objc-bridge:1.1","match":["ca.weblite:java-objc-bridge:1.1"],"override":{"rules":[{"action":"allow","os":{"name":"osx-arm64"}}]}}
+{
+  "_comment": "Only allow osx-arm64 for existing java-objc-bridge:1.1",
+  "match": [
+    "ca.weblite:java-objc-bridge:1.1"
+  ],
+  "override": {
+    "rules": [
+      {
+        "action": "allow",
+        "os": {
+          "name": "osx-arm64"
+        }
+      }
+    ]
+  }
+}

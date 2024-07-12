@@ -12,18 +12,13 @@ license.workspace = true
 categories = ["game-development", "api-bindings"]
 
 [features]
-bincode = ["dep:bincode"]
 specta = ["dep:specta"]
 
 [dependencies]
-bincode = { workspace = true, optional = true }
 specta = { workspace = true, optional = true }
 
-reqwest.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 chrono.workspace = true
 bytes.workspace = true
 thiserror.workspace = true
-tokio.workspace = true
-sha1_smol.workspace = true

@@ -1,1 +1,186 @@
-{"_comment":"Use a newer patched version on osx-arm64, linux-arm64, and linux-arm32","match":["org.lwjgl:lwjgl-glfw:3.2.2","org.lwjgl:lwjgl-glfw:3.2.1","org.lwjgl:lwjgl-glfw:3.1.6","org.lwjgl:lwjgl-glfw:3.1.2"],"additionalLibraries":[{"downloads":{"artifact":{"sha1":"155d175037efc76630940c197ca6dea2b17d7e18","size":108691,"url":"https://github.com/theofficialgman/lwjgl3-binaries-arm64/raw/lwjgl-3.2.2/lwjgl-glfw.jar"}},"name":"org.lwjgl:lwjgl-glfw:3.2.2-gman64.1","rules":[{"action":"allow","os":{"name":"linux-arm64"}}],"include_in_classpath":true},{"downloads":{"artifact":{"sha1":"155d175037efc76630940c197ca6dea2b17d7e18","size":108691,"url":"https://github.com/theofficialgman/lwjgl3-binaries-arm64/raw/lwjgl-3.2.2/lwjgl-glfw.jar"},"classifiers":{"natives-linux-arm64":{"sha1":"074ad243761147df0d060fbefc814614d2ff75cc","size":85072,"url":"https://github.com/theofficialgman/lwjgl3-binaries-arm64/raw/lwjgl-3.2.2/lwjgl-glfw-natives-linux-arm64.jar"}}},"name":"org.lwjgl:lwjgl-glfw:3.2.2-gman64.1","natives":{"linux-arm64":"natives-linux-arm64"},"rules":[{"action":"allow","os":{"name":"linux-arm64"}}],"include_in_classpath":true},{"downloads":{"artifact":{"sha1":"99e9a39fa8ed4167e3ff9e04d47eb32c9e69804d","size":108691,"url":"https://github.com/theofficialgman/lwjgl3-binaries-arm32/raw/lwjgl-3.2.2/lwjgl-glfw.jar"}},"name":"org.lwjgl:lwjgl-glfw:3.2.2-gman32.1","rules":[{"action":"allow","os":{"name":"linux-arm32"}}],"include_in_classpath":true},{"downloads":{"artifact":{"sha1":"99e9a39fa8ed4167e3ff9e04d47eb32c9e69804d","size":108691,"url":"https://github.com/theofficialgman/lwjgl3-binaries-arm32/raw/lwjgl-3.2.2/lwjgl-glfw.jar"},"classifiers":{"natives-linux-arm32":{"sha1":"4265f2fbe3b9d642591165165a17cf406cf7b98e","size":80186,"url":"https://github.com/theofficialgman/lwjgl3-binaries-arm32/raw/lwjgl-3.2.2/lwjgl-glfw-natives-linux-arm32.jar"}}},"name":"org.lwjgl:lwjgl-glfw:3.2.2-gman32.1","natives":{"linux-arm32":"natives-linux-arm32"},"rules":[{"action":"allow","os":{"name":"linux-arm32"}}],"include_in_classpath":true},{"downloads":{"artifact":{"sha1":"e9a101bca4fa30d26b21b526ff28e7c2d8927f1b","size":130128,"url":"https://github.com/MinecraftMachina/lwjgl3/releases/download/3.3.1-mmachina.1/lwjgl-glfw.jar"}},"name":"org.lwjgl:lwjgl-glfw:3.3.1-mmachina.1","rules":[{"action":"allow","os":{"name":"osx-arm64"}}],"include_in_classpath":true},{"downloads":{"artifact":{"sha1":"e9a101bca4fa30d26b21b526ff28e7c2d8927f1b","size":130128,"url":"https://github.com/MinecraftMachina/lwjgl3/releases/download/3.3.1-mmachina.1/lwjgl-glfw.jar"},"classifiers":{"natives-osx-arm64":{"sha1":"71d793d0a5a42e3dfe78eb882abc2523a2c6b496","size":129076,"url":"https://github.com/MinecraftMachina/lwjgl3/releases/download/3.3.1-mmachina.1/lwjgl-glfw-natives-macos-arm64.jar"}}},"name":"org.lwjgl:lwjgl-glfw:3.3.1-mmachina.1","natives":{"osx-arm64":"natives-osx-arm64"},"rules":[{"action":"allow","os":{"name":"osx-arm64"}}],"include_in_classpath":true}],"override":{"rules":[{"action":"disallow","os":{"name":"linux-arm64"}},{"action":"disallow","os":{"name":"linux-arm32"}},{"action":"disallow","os":{"name":"osx-arm64"}}]}}
+{
+  "_comment": "Use a newer patched version on osx-arm64, linux-arm64, and linux-arm32",
+  "match": [
+    "org.lwjgl:lwjgl-glfw:3.2.2",
+    "org.lwjgl:lwjgl-glfw:3.2.1",
+    "org.lwjgl:lwjgl-glfw:3.1.6",
+    "org.lwjgl:lwjgl-glfw:3.1.2"
+  ],
+  "additionalLibraries": [
+    {
+      "downloads": {
+        "artifact": {
+          "sha1": "155d175037efc76630940c197ca6dea2b17d7e18",
+          "size": 108691,
+          "url": "https://github.com/theofficialgman/lwjgl3-binaries-arm64/raw/lwjgl-3.2.2/lwjgl-glfw.jar"
+        }
+      },
+      "name": "org.lwjgl:lwjgl-glfw:3.2.2-gman64.1",
+      "rules": [
+        {
+          "action": "allow",
+          "os": {
+            "name": "linux-arm64"
+          }
+        }
+      ],
+      "include_in_classpath": true,
+      "downloadable": true
+    },
+    {
+      "downloads": {
+        "artifact": {
+          "sha1": "155d175037efc76630940c197ca6dea2b17d7e18",
+          "size": 108691,
+          "url": "https://github.com/theofficialgman/lwjgl3-binaries-arm64/raw/lwjgl-3.2.2/lwjgl-glfw.jar"
+        },
+        "classifiers": {
+          "natives-linux-arm64": {
+            "sha1": "074ad243761147df0d060fbefc814614d2ff75cc",
+            "size": 85072,
+            "url": "https://github.com/theofficialgman/lwjgl3-binaries-arm64/raw/lwjgl-3.2.2/lwjgl-glfw-natives-linux-arm64.jar"
+          }
+        }
+      },
+      "name": "org.lwjgl:lwjgl-glfw:3.2.2-gman64.1",
+      "natives": {
+        "linux-arm64": "natives-linux-arm64"
+      },
+      "rules": [
+        {
+          "action": "allow",
+          "os": {
+            "name": "linux-arm64"
+          }
+        }
+      ],
+      "include_in_classpath": true,
+      "downloadable": true
+    },
+    {
+      "downloads": {
+        "artifact": {
+          "sha1": "99e9a39fa8ed4167e3ff9e04d47eb32c9e69804d",
+          "size": 108691,
+          "url": "https://github.com/theofficialgman/lwjgl3-binaries-arm32/raw/lwjgl-3.2.2/lwjgl-glfw.jar"
+        }
+      },
+      "name": "org.lwjgl:lwjgl-glfw:3.2.2-gman32.1",
+      "rules": [
+        {
+          "action": "allow",
+          "os": {
+            "name": "linux-arm32"
+          }
+        }
+      ],
+      "include_in_classpath": true,
+      "downloadable": true
+    },
+    {
+      "downloads": {
+        "artifact": {
+          "sha1": "99e9a39fa8ed4167e3ff9e04d47eb32c9e69804d",
+          "size": 108691,
+          "url": "https://github.com/theofficialgman/lwjgl3-binaries-arm32/raw/lwjgl-3.2.2/lwjgl-glfw.jar"
+        },
+        "classifiers": {
+          "natives-linux-arm32": {
+            "sha1": "4265f2fbe3b9d642591165165a17cf406cf7b98e",
+            "size": 80186,
+            "url": "https://github.com/theofficialgman/lwjgl3-binaries-arm32/raw/lwjgl-3.2.2/lwjgl-glfw-natives-linux-arm32.jar"
+          }
+        }
+      },
+      "name": "org.lwjgl:lwjgl-glfw:3.2.2-gman32.1",
+      "natives": {
+        "linux-arm32": "natives-linux-arm32"
+      },
+      "rules": [
+        {
+          "action": "allow",
+          "os": {
+            "name": "linux-arm32"
+          }
+        }
+      ],
+      "include_in_classpath": true,
+      "downloadable": true
+    },
+    {
+      "downloads": {
+        "artifact": {
+          "sha1": "e9a101bca4fa30d26b21b526ff28e7c2d8927f1b",
+          "size": 130128,
+          "url": "https://github.com/MinecraftMachina/lwjgl3/releases/download/3.3.1-mmachina.1/lwjgl-glfw.jar"
+        }
+      },
+      "name": "org.lwjgl:lwjgl-glfw:3.3.1-mmachina.1",
+      "rules": [
+        {
+          "action": "allow",
+          "os": {
+            "name": "osx-arm64"
+          }
+        }
+      ],
+      "include_in_classpath": true,
+      "downloadable": true
+    },
+    {
+      "downloads": {
+        "artifact": {
+          "sha1": "e9a101bca4fa30d26b21b526ff28e7c2d8927f1b",
+          "size": 130128,
+          "url": "https://github.com/MinecraftMachina/lwjgl3/releases/download/3.3.1-mmachina.1/lwjgl-glfw.jar"
+        },
+        "classifiers": {
+          "natives-osx-arm64": {
+            "sha1": "71d793d0a5a42e3dfe78eb882abc2523a2c6b496",
+            "size": 129076,
+            "url": "https://github.com/MinecraftMachina/lwjgl3/releases/download/3.3.1-mmachina.1/lwjgl-glfw-natives-macos-arm64.jar"
+          }
+        }
+      },
+      "name": "org.lwjgl:lwjgl-glfw:3.3.1-mmachina.1",
+      "natives": {
+        "osx-arm64": "natives-osx-arm64"
+      },
+      "rules": [
+        {
+          "action": "allow",
+          "os": {
+            "name": "osx-arm64"
+          }
+        }
+      ],
+      "include_in_classpath": true,
+      "downloadable": true
+    }
+  ],
+  "override": {
+    "rules": [
+      {
+        "action": "allow"
+      },
+      {
+        "action": "disallow",
+        "os": {
+          "name": "linux-arm64"
+        }
+      },
+      {
+        "action": "disallow",
+        "os": {
+          "name": "linux-arm32"
+        }
+      },
+      {
+        "action": "disallow",
+        "os": {
+          "name": "osx-arm64"
+        }
+      }
+    ]
+  }
+}

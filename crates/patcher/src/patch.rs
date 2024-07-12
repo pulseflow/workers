@@ -18,29 +18,35 @@ pub struct LibraryPatch {
 	pub patch_additional_libraries: Option<bool>,
 }
 
-pub fn collect_patch_files(dir: &str) -> anyhow::Result<String> {
+pub fn collect_patch_files(dir: &Option<String>, file: &Option<String>) -> anyhow::Result<()> {
+	let dir = dir.as_deref().unwrap_or("./patches");
+	let file = file.as_deref().unwrap_or("./crates/meta/library.json");
+
 	let mut patches: Vec<LibraryPatch> = Vec::new();
-	let files = std::fs::read_dir(dir)
-		.expect("could not read dir")
-		.map(|file| file.expect("could not get file").path());
+	let files = std::fs::read_dir(dir)?.map(|file| file.expect("could not get file").path());
 
 	for file_path in files {
 		if let Some(extension) = file_path.extension() {
 			if extension == "json" {
-				let file_contents = std::fs::read_to_string(file_path).unwrap();
-				let patch: LibraryPatch = serde_json::from_str(&file_contents).unwrap();
+				let file_contents = std::fs::read_to_string(file_path)?;
+				let patch: LibraryPatch = serde_json::from_str(&file_contents)?;
 				patches.push(patch);
 			}
 		}
 	}
 
-	Ok(serde_json::to_string(&patches).unwrap())
+	std::fs::write(file, serde_json::to_string(&patches)?)?;
+
+	Ok(())
 }
 
-pub fn uncollect_patch_files(dir: &str, file: &str) -> anyhow::Result<()> {
+pub fn uncollect_patch_files(dir: &Option<String>, file: &Option<String>) -> anyhow::Result<()> {
+	let dir = dir.as_deref().unwrap_or("./patches");
+	let file = file.as_deref().unwrap_or("./crates/meta/library.json");
+
 	let output = std::path::Path::new(dir);
-	let data = std::fs::read_to_string(file).expect("failed to read file");
-	let patches: Vec<LibraryPatch> = serde_json::from_str(&data).expect("failed to parse json");
+	let data = std::fs::read_to_string(file)?;
+	let patches: Vec<LibraryPatch> = serde_json::from_str(&data)?;
 
 	let mut file_names: HashMap<String, usize> = HashMap::new();
 	let mut result: Vec<(String, LibraryPatch)> = Vec::new();
@@ -60,9 +66,8 @@ pub fn uncollect_patch_files(dir: &str, file: &str) -> anyhow::Result<()> {
 	}
 
 	for (file_name, patch) in &result {
-		let writable = serde_json::to_string(patch).expect("could not parse json to string");
-
-		std::fs::write(output.join(file_name), writable).expect("failed to write file");
+		let writable = serde_json::to_string_pretty(patch)?;
+		std::fs::write(output.join(file_name), writable)?;
 	}
 
 	Ok(())

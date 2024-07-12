@@ -7,13 +7,8 @@ async fn main() -> anyhow::Result<()> {
 	let cli = Cli::parse();
 
 	match &cli.command {
-		Commands::MergeFiles(args) => {
-			let merged = collect_patch_files(&args.dir).unwrap();
-			std::fs::write(&args.dest, merged)?;
-		}
-		Commands::UnmergeFiles(args) => {
-			uncollect_patch_files(&args.dest, &args.dir)?;
-		}
+		Commands::MergeFiles(args) => collect_patch_files(&args.dir, &args.dest)?,
+		Commands::UnmergeFiles(args) => uncollect_patch_files(&args.dest, &args.dir)?,
 	}
 
 	Ok(())

@@ -1,1 +1,28 @@
-{"_comment":"Add linux-arm64 support for LWJGL 3.3.1","match":["org.lwjgl:lwjgl-jemalloc:3.3.1"],"additionalLibraries":[{"downloads":{"artifact":{"sha1":"749be48a9b86ee2c3a2da5fd77511208adcfb33b","size":159993,"url":"https://github.com/theofficialgman/lwjgl3-binaries-arm64/raw/lwjgl-3.3.1/lwjgl-jemalloc-patched-natives-linux-arm64.jar"}},"name":"org.lwjgl:lwjgl-jemalloc-natives-linux-arm64:3.3.1-gman64.1","rules":[{"action":"allow","os":{"name":"linux-arm64"}}],"include_in_classpath":true}]}
+{
+  "_comment": "Add linux-arm64 support for LWJGL 3.3.1",
+  "match": [
+    "org.lwjgl:lwjgl-jemalloc:3.3.1"
+  ],
+  "additionalLibraries": [
+    {
+      "downloads": {
+        "artifact": {
+          "sha1": "749be48a9b86ee2c3a2da5fd77511208adcfb33b",
+          "size": 159993,
+          "url": "https://github.com/theofficialgman/lwjgl3-binaries-arm64/raw/lwjgl-3.3.1/lwjgl-jemalloc-patched-natives-linux-arm64.jar"
+        }
+      },
+      "name": "org.lwjgl:lwjgl-jemalloc-natives-linux-arm64:3.3.1-gman64.1",
+      "rules": [
+        {
+          "action": "allow",
+          "os": {
+            "name": "linux-arm64"
+          }
+        }
+      ],
+      "include_in_classpath": true,
+      "downloadable": true
+    }
+  ]
+}

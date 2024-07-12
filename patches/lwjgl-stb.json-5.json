@@ -1,1 +1,28 @@
-{"_comment":"Add linux-arm32 support for LWJGL 3.3.2","match":["org.lwjgl:lwjgl-stb:3.3.2"],"additionalLibraries":[{"downloads":{"artifact":{"sha1":"ca9333da184aade20757151f4615f1e27ca521ae","size":154928,"url":"https://build.lwjgl.org/release/3.3.2/bin/lwjgl-stb/lwjgl-stb-natives-linux-arm32.jar"}},"name":"org.lwjgl:lwjgl-stb-natives-linux-arm32:3.3.2-lwjgl.1","rules":[{"action":"allow","os":{"name":"linux-arm32"}}],"include_in_classpath":true}]}
+{
+  "_comment": "Add linux-arm32 support for LWJGL 3.3.2",
+  "match": [
+    "org.lwjgl:lwjgl-stb:3.3.2"
+  ],
+  "additionalLibraries": [
+    {
+      "downloads": {
+        "artifact": {
+          "sha1": "ca9333da184aade20757151f4615f1e27ca521ae",
+          "size": 154928,
+          "url": "https://build.lwjgl.org/release/3.3.2/bin/lwjgl-stb/lwjgl-stb-natives-linux-arm32.jar"
+        }
+      },
+      "name": "org.lwjgl:lwjgl-stb-natives-linux-arm32:3.3.2-lwjgl.1",
+      "rules": [
+        {
+          "action": "allow",
+          "os": {
+            "name": "linux-arm32"
+          }
+        }
+      ],
+      "include_in_classpath": true,
+      "downloadable": true
+    }
+  ]
+}
