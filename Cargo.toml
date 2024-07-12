@@ -9,6 +9,7 @@ homepage = "https://github.com/pulseflow/workers"
 repository = "https://github.com/pulseflow/workers"
 readme = "README.md"
 license = "MIT"
+version = "1.0.0"
 
 [workspace.dependencies]
 specta = { git = "https://github.com/oscartbeaumont/specta", rev = "13fd87c6a1e5c64f296ff76f113314ed6a3fe685", features = ["serde", "uuid", "chrono", "serde_json"] }
