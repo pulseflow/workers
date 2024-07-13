@@ -44,7 +44,7 @@ async fn main() -> Result<()> {
 	api::minecraft::fetch(semaphore.clone(), &upload_files, &mirror_artifacts).await?;
 	api::fabric::fetch_fabric(semaphore.clone(), &upload_files, &mirror_artifacts).await?;
 	api::fabric::fetch_quilt(semaphore.clone(), &upload_files, &mirror_artifacts).await?;
-	api::fabric::fetch_legacy_fabric(semaphore.clone(), &upload_files, &mirror_artifacts).await?;
+	// api::fabric::fetch_legacy_fabric(semaphore.clone(), &upload_files, &mirror_artifacts).await?;
 	api::forge::fetch_neo(semaphore.clone(), &upload_files, &mirror_artifacts).await?;
 	api::forge::fetch_forge(semaphore.clone(), &upload_files, &mirror_artifacts).await?;
 
