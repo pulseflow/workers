@@ -25,7 +25,7 @@ jobs:
 
 
       - name: Pull Docker image from GHCR
-        run: docker pull ghcr.io/pulseflow/workers:master
+        run: docker pull ghcr.io/pulseflow/workers:main
 
       - name: Run Docker container
         env:
