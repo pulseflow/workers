@@ -233,7 +233,7 @@ async fn fetch(
 			upload_files: &DashMap<String, UploadFile>,
 			mirror_artifacts: &DashMap<String, MirrorArtifact>,
 		) -> Result<PartialVersionInfo, Error> {
-			tracing::trace!("Reading forge installer for {}", loader.loader_version);
+			tracing::trace!("reading forge installer for {}", loader.loader_version);
 			type ZipFileReader = async_zip::base::read::seek::ZipFileReader<Cursor<bytes::Bytes>>;
 
 			let cursor = Cursor::new(raw);

@@ -15,7 +15,7 @@ RUN apt-get update \
 
 RUN update-ca-certificates
 
-COPY --from=build /usr/src/workers/target/release/meta_workers /workers/meta_client
-WORKDIR /meta_client
+COPY --from=build /usr/src/workers/target/release/meta_workers /workers/meta_workers
+WORKDIR /meta_workers
 
-CMD /workers/meta_client
+CMD /workers/meta_workers
