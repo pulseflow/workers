@@ -12,7 +12,7 @@ license = "MIT"
 version = "1.0.0"
 
 [workspace.dependencies]
-specta = { git = "https://github.com/oscartbeaumont/specta", rev = "d13ce97b70766c2681b63c80daf431c2bf4d255c", features = ["serde", "uuid", "chrono", "serde_json"] }
+specta = { version = "=2.0.0-rc.12", features = ["serde", "uuid", "chrono", "serde_json"] }
 
 tokio = { version = "1.38", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
@@ -40,3 +40,6 @@ tracing-error = "0.2"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 tracing-futures = { version = "0.2", features = ["futures", "tokio"] }
+
+[patch.crates-io]
+specta = { git = "https://github.com/oscartbeaumont/specta", rev = "fadef54000e131008ff6e9dd7efe2ba36479c077" }
