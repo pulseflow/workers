@@ -14,6 +14,7 @@ pub async fn fetch(
 	upload_files: &DashMap<String, UploadFile>,
 	_mirror_artifacts: &DashMap<String, MirrorArtifact>,
 ) -> Result<(), Error> {
+	tracing::info!("fetching minecraft metadata!");
 	let existing_manifest = fetch_json::<VersionManifest>(
 		&format_url(&format!(
 			"minecraft/v{}/manifest.json",

@@ -50,7 +50,7 @@ lazy_static::lazy_static! {
 
 		reqwest::Client::builder()
 			.tcp_keepalive(Some(std::time::Duration::from_secs(10)))
-			.timeout(std::time::Duration::from_secs(15))
+			.timeout(std::time::Duration::from_secs(20))
 			.default_headers(headers)
 			.build()
 			.unwrap()

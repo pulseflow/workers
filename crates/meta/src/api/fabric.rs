@@ -76,6 +76,7 @@ async fn fetch(
 	upload_files: &DashMap<String, UploadFile>,
 	mirror_artifacts: &DashMap<String, MirrorArtifact>,
 ) -> Result<(), Error> {
+	tracing::info!("fetching fabric mod loader metadata for {mod_loader}!");
 	let existing_manifest = fetch_json::<Manifest>(
 		&format_url(&format!("{mod_loader}/v{format_version}/manifest.json",)),
 		&semaphore,

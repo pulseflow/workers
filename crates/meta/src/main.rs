@@ -22,7 +22,7 @@ async fn main() -> Result<()> {
 		.with(ErrorLayer::default());
 
 	tracing::subscriber::set_global_default(subscriber)?;
-	tracing::info!("initialized core metadata. starting!");
+	tracing::info!("initialized core metadata tasks. starting!");
 
 	if check_env_vars() {
 		tracing::error!(
@@ -31,6 +31,7 @@ async fn main() -> Result<()> {
 		return Ok(());
 	}
 
+	tracing::info!("starting semaphore");
 	let semaphore = Arc::new(Semaphore::new(
 		dotenvy::var("CONCURRENCY_LIMIT")
 			.ok()
@@ -48,6 +49,7 @@ async fn main() -> Result<()> {
 	api::forge::fetch_neo(semaphore.clone(), &upload_files, &mirror_artifacts).await?;
 	api::forge::fetch_forge(semaphore.clone(), &upload_files, &mirror_artifacts).await?;
 
+	tracing::info!("uploading metadata files to bucket");
 	futures::future::try_join_all(upload_files.iter().map(|x| {
 		upload_file_to_bucket(
 			x.key().clone(),
@@ -58,6 +60,7 @@ async fn main() -> Result<()> {
 	}))
 	.await?;
 
+	tracing::info!("uploading mirrored artifacts to bucket");
 	futures::future::try_join_all(mirror_artifacts.iter().map(|x| {
 		upload_url_to_bucket_mirrors(
 			format!("maven/{}", x.key()),
@@ -78,6 +81,7 @@ async fn main() -> Result<()> {
 	}))
 	.await?;
 
+	tracing::info!("clearing cloudflare cache on updated artifacts");
 	if dotenvy::var("CLOUDFLARE_INTEGRATION")
 		.ok()
 		.and_then(|x| x.parse::<bool>().ok())
@@ -95,6 +99,7 @@ async fn main() -> Result<()> {
 					)
 					.collect::<Vec<_>>();
 
+				tracing::info!("clearing cloudflare chunks");
 				for chunk in cache_clears.chunks(500) {
 					REQWEST_CLIENT
 						.post(format!(
