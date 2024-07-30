@@ -128,7 +128,7 @@ checksum = "6e0c28dcc82d7c8ead5cb13beb15405b57b8546e93215673ff8ca0349a028107"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.71",
+ "syn",
 ]
 
 [[package]]
@@ -365,7 +365,7 @@ dependencies = [
  "heck",
  "proc-macro2",
  "quote",
- "syn 2.0.71",
+ "syn",
 ]
 
 [[package]]
@@ -737,7 +737,7 @@ checksum = "87750cf4b7a4c0625b1529e4c543c2182106e4dedc60a2a6455e00d212c489ac"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.71",
+ "syn",
 ]
 
 [[package]]
@@ -1233,7 +1233,7 @@ checksum = "5cf92c10c7e361d6b99666ec1c6f9805b0bea2c3bd8c78dc6fe98ac5bd78db11"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.71",
+ "syn",
 ]
 
 [[package]]
@@ -1482,7 +1482,7 @@ checksum = "a948666b637a0f465e8564c73e89d4dde00d72d4d473cc972f390fc3dcee7d9c"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.71",
+ "syn",
 ]
 
 [[package]]
@@ -1575,12 +1575,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "paste"
-version = "1.0.15"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a"
-
-[[package]]
 name = "percent-encoding"
 version = "2.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1603,7 +1597,7 @@ checksum = "2f38a4412a78282e09a2cf38d195ea5420d15ba0602cb375210efbc877243965"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.71",
+ "syn",
 ]
 
 [[package]]
@@ -2105,7 +2099,7 @@ checksum = "e0cd7e117be63d3c3678776753929474f3b04a43a080c744d6b0ae2a8c28e222"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.71",
+ "syn",
 ]
 
 [[package]]
@@ -2213,12 +2207,11 @@ dependencies = [
 
 [[package]]
 name = "specta"
-version = "2.0.0-rc.12"
-source = "git+https://github.com/oscartbeaumont/specta?rev=fadef54000e131008ff6e9dd7efe2ba36479c077#fadef54000e131008ff6e9dd7efe2ba36479c077"
+version = "2.0.0-rc.16"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5fd9fd8ec58ec895d2e947a7b431b5c8d2218956a1e378bbfdc3b7414109e2c5"
 dependencies = [
  "chrono",
- "once_cell",
- "paste",
  "serde",
  "serde_json",
  "specta-macros",
@@ -2228,13 +2221,14 @@ dependencies = [
 
 [[package]]
 name = "specta-macros"
-version = "2.0.0-rc.10"
-source = "git+https://github.com/oscartbeaumont/specta?rev=fadef54000e131008ff6e9dd7efe2ba36479c077#fadef54000e131008ff6e9dd7efe2ba36479c077"
+version = "2.0.0-rc.16"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "649713524bd94bb77336b3d2924e3686a88de3cea780a57d45051923d5a5add4"
 dependencies = [
  "Inflector",
  "proc-macro2",
  "quote",
- "syn 1.0.109",
+ "syn",
 ]
 
 [[package]]
@@ -2260,17 +2254,6 @@ name = "subtle"
 version = "2.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
-
-[[package]]
-name = "syn"
-version = "1.0.109"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "72b64191b275b66ffe2469e8af2c1cfe3bafa67b529ead792a6d0160888b4237"
-dependencies = [
- "proc-macro2",
- "quote",
- "unicode-ident",
-]
 
 [[package]]
 name = "syn"
@@ -2339,7 +2322,7 @@ checksum = "d20468752b09f49e909e55a5d338caa8bedf615594e9d80bc4c565d30faf798c"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.71",
+ "syn",
 ]
 
 [[package]]
@@ -2511,7 +2494,7 @@ checksum = "5f5ae998a069d4b5aba8ee9dad856af7d520c3699e6159b185c2acd48155d39a"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.71",
+ "syn",
 ]
 
 [[package]]
@@ -2711,7 +2694,7 @@ checksum = "34704c8d6ebcbc939824180af020566b01a7c01f80641264eba0999f6c2b6be7"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.71",
+ "syn",
 ]
 
 [[package]]
@@ -2891,7 +2874,7 @@ dependencies = [
  "once_cell",
  "proc-macro2",
  "quote",
- "syn 2.0.71",
+ "syn",
  "wasm-bindgen-shared",
 ]
 
@@ -2925,7 +2908,7 @@ checksum = "e94f17b526d0a461a191c78ea52bbce64071ed5c04c9ffe424dcb38f74171bb7"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.71",
+ "syn",
  "wasm-bindgen-backend",
  "wasm-bindgen-shared",
 ]
