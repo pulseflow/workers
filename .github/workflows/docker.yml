@@ -9,6 +9,7 @@ on:
   pull_request:
 jobs:
   docker:
+    if: github.repository_owner == 'pulseflow'
     name: Build and Push Docker image
     runs-on: ubuntu-latest
     permissions:
