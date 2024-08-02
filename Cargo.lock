@@ -1087,7 +1087,7 @@ dependencies = [
 
 [[package]]
 name = "interpulse"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "bytes 1.6.1",
  "chrono",
@@ -1264,7 +1264,7 @@ dependencies = [
 
 [[package]]
 name = "meta_patcher"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "anyhow",
  "clap",
@@ -1276,7 +1276,7 @@ dependencies = [
 
 [[package]]
 name = "meta_workers"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "async_zip",
  "bytes 1.6.1",
@@ -2210,9 +2210,9 @@ dependencies = [
 
 [[package]]
 name = "specta"
-version = "2.0.0-rc.18"
+version = "2.0.0-rc.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cfd9c8f5ec3e3727784396e946bfa91a973853e70e3b1d637c36e5f99c1daf0e"
+checksum = "c55a15e1cd11cd8b7bb846d2770ac2870f661a3cfe0b9744acf9da4d902ad931"
 dependencies = [
  "chrono",
  "serde",
