@@ -1087,7 +1087,7 @@ dependencies = [
 
 [[package]]
 name = "interpulse"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "bytes 1.7.1",
  "chrono",
@@ -1264,7 +1264,7 @@ dependencies = [
 
 [[package]]
 name = "meta_patcher"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "anyhow",
  "clap",
@@ -1276,7 +1276,7 @@ dependencies = [
 
 [[package]]
 name = "meta_workers"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "async_zip",
  "bytes 1.7.1",
