@@ -368,26 +368,27 @@ async fn fetch(
 						.libraries
 						.into_iter()
 						.map(|mut lib| {
-							if let Some(url) = lib.url {
-								if lib.name != install_profile.install.path
-									&& !url.is_empty() && !url
-									.contains("https://libraries.minecraft.net/")
+							if let Some(ref url) = lib.url {
+								if lib.name == install_profile.install.path {
+									lib.url = Some(format_url("maven/"));
+								} else if !url.is_empty()
+									&& !url.contains("https://libraries.minecraft.net/")
 								{
 									insert_mirrored_artifact(
 										&lib.name,
 										None,
 										vec![
-											url,
+											url.clone(),
 											"https://maven.creeperhost.net/".to_string(),
 											maven_url.to_string(),
 										],
 										false,
 										mirror_artifacts,
 									)?;
+
+									lib.url = Some(format_url("maven/"))
 								}
 							}
-
-							lib.url = Some(format_url("maven/"));
 
 							Ok(lib)
 						})
