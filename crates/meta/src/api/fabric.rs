@@ -46,6 +46,7 @@ pub async fn fetch_legacy_fabric(
 	.await
 }
 
+#[allow(clippy::too_many_arguments)]
 #[tracing::instrument(skip(semaphore, upload_files, mirror_artifacts))]
 pub async fn fetch_quilt(
 	semaphore: Arc<Semaphore>,
