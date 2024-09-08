@@ -31,9 +31,9 @@ lazy_static::lazy_static! {
 		).unwrap();
 
 		if region == "path-style" {
-			b.with_path_style()
+			*b.with_path_style()
 		} else {
-			b
+			*b
 		}
 	};
 }
