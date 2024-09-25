@@ -1,19 +1,12 @@
-use crate::utils::{
-	download_file, fetch_json, format_url, insert_mirrored_artifact, Error, MirrorArtifact,
-	UploadFile,
-};
-use dashmap::DashMap;
+use crate::utils::prelude::*;
 use interpulse::api::modded::{Manifest, PartialVersionInfo, DUMMY_REPLACE_STRING};
-use serde::Deserialize;
-use std::sync::Arc;
-use tokio::sync::Semaphore;
 
 #[tracing::instrument(skip(semaphore, upload_files, mirror_artifacts))]
 pub async fn fetch_fabric(
 	semaphore: Arc<Semaphore>,
-	upload_files: &DashMap<String, UploadFile>,
-	mirror_artifacts: &DashMap<String, MirrorArtifact>,
-) -> Result<(), Error> {
+	upload_files: &crate::UploadFiles,
+	mirror_artifacts: &crate::MirrorArtifacts,
+) -> crate::utils::Result<()> {
 	fetch(
 		interpulse::api::modded::CURRENT_FABRIC_FORMAT_VERSION,
 		"fabric",
@@ -30,9 +23,9 @@ pub async fn fetch_fabric(
 #[tracing::instrument(skip(semaphore, upload_files, mirror_artifacts))]
 pub async fn fetch_legacy_fabric(
 	semaphore: Arc<Semaphore>,
-	upload_files: &DashMap<String, UploadFile>,
-	mirror_artifacts: &DashMap<String, MirrorArtifact>,
-) -> Result<(), Error> {
+	upload_files: &crate::UploadFiles,
+	mirror_artifacts: &crate::MirrorArtifacts,
+) -> crate::utils::Result<()> {
 	fetch(
 		interpulse::api::modded::CURRENT_LEGACY_FABRIC_FORMAT_VERSION,
 		"legacy-fabric",
@@ -50,15 +43,15 @@ pub async fn fetch_legacy_fabric(
 #[tracing::instrument(skip(semaphore, upload_files, mirror_artifacts))]
 pub async fn fetch_quilt(
 	semaphore: Arc<Semaphore>,
-	upload_files: &DashMap<String, UploadFile>,
-	mirror_artifacts: &DashMap<String, MirrorArtifact>,
-) -> Result<(), Error> {
+	upload_files: &crate::UploadFiles,
+	mirror_artifacts: &crate::MirrorArtifacts,
+) -> crate::utils::Result<()> {
 	fetch(
 		interpulse::api::modded::CURRENT_QUILT_FORMAT_VERSION,
 		"quilt",
 		"https://meta.quiltmc.org/v3",
 		"https://maven.quiltmc.org/repository/release/",
-		&["0.17.5-beta.4"],
+		&["0.17.5-beta.4"], // invalid library coordinates
 		semaphore,
 		upload_files,
 		mirror_artifacts,
@@ -75,19 +68,22 @@ async fn fetch(
 	maven_url: &str,
 	skip_versions: &[&str],
 	semaphore: Arc<Semaphore>,
-	upload_files: &DashMap<String, UploadFile>,
-	mirror_artifacts: &DashMap<String, MirrorArtifact>,
-) -> Result<(), Error> {
+	upload_files: &crate::UploadFiles,
+	mirror_artifacts: &crate::MirrorArtifacts,
+) -> crate::utils::Result<()> {
+	const DUMMY_GAME_VERSION: &str = "1.21";
 	tracing::info!("fetching fabric mod loader metadata for {mod_loader}!");
-	let existing_manifest = fetch_json::<Manifest>(
-		&format_url(&format!("{mod_loader}/v{format_version}/manifest.json",)),
+	let existing_manifest = crate::utils::fetch_json::<Manifest>(
+		&crate::utils::format_url(&format!("{mod_loader}/v{format_version}/manifest.json",)),
 		&semaphore,
 	)
 	.await
 	.ok();
 	let fabric_manifest =
-		fetch_json::<FabricVersions>(&format!("{meta_url}/versions"), &semaphore).await?;
+		crate::utils::fetch_json::<FabricVersions>(&format!("{meta_url}/versions"), &semaphore)
+			.await?;
 
+	// we can check our fabric manifest and compare it to fabric's to avoid unnecessary processing
 	let (fetch_fabric_versions, fetch_intermediary_versions) =
 		if let Some(existing_manifest) = existing_manifest {
 			let (mut fetch_versions, mut fetch_intermediary_versions) = (Vec::new(), Vec::new());
@@ -129,11 +125,9 @@ async fn fetch(
 			)
 		};
 
-	const DUMMY_GAME_VERSION: &str = "1.21";
-
 	if !fetch_intermediary_versions.is_empty() {
 		for x in &fetch_intermediary_versions {
-			insert_mirrored_artifact(
+			crate::utils::insert_mirrored_artifact(
 				&x.maven,
 				None,
 				vec![maven_url.to_string()],
@@ -156,7 +150,7 @@ async fn fetch(
 		let fabric_version_manifests = futures::future::try_join_all(
 			fabric_version_manifest_urls
 				.iter()
-				.map(|x| download_file(x, None, &semaphore)),
+				.map(|x| crate::utils::download_file(x, None, &semaphore)),
 		)
 		.await?
 		.into_iter()
@@ -169,12 +163,16 @@ async fn fetch(
 				for lib in &mut version_info.libraries {
 					let new_name = lib.name.replace(DUMMY_GAME_VERSION, DUMMY_REPLACE_STRING);
 
+					// `net.minecraft.launchwrapper:1.12` isn't present on fabric's maven server.
+					// we hard code this to fetch it from mojang's servers
 					if &*lib.name == "net.minecraft:launchwrapper:1.12" {
 						lib.url = Some("https://libraries.minecraft.net/".to_string());
 					}
 
+					// if a library isn't an intermediary, we can add it to `mirror_artifacts`
+					// to mirror on the s3 server, for redundancy
 					if lib.name == new_name {
-						insert_mirrored_artifact(
+						crate::utils::insert_mirrored_artifact(
 							&new_name,
 							None,
 							vec![lib.url.clone().unwrap_or_else(|| maven_url.to_string())],
@@ -185,7 +183,7 @@ async fn fetch(
 						lib.name = new_name;
 					}
 
-					lib.url = Some(format_url("maven/"));
+					lib.url = Some(crate::utils::format_url("maven/"));
 				}
 
 				version_info.id = version_info
@@ -197,10 +195,10 @@ async fn fetch(
 
 				Ok(version_info)
 			})
-			.collect::<Result<Vec<_>, Error>>()?;
+			.collect::<crate::utils::Result<Vec<_>>>()?;
 		let serialized_version_manifests = patched_version_manifests
 			.iter()
-			.map(|x| serde_json::to_vec(x).map(bytes::Bytes::from))
+			.map(|x| serde_json::to_vec(x).map(Bytes::from))
 			.collect::<Result<Vec<_>, serde_json::Error>>()?;
 
 		serialized_version_manifests
@@ -216,7 +214,7 @@ async fn fetch(
 
 				upload_files.insert(
 					version_path,
-					UploadFile {
+					crate::utils::UploadFile {
 						file: bytes,
 						content_type: Some("application/json".to_string()),
 					},
@@ -239,7 +237,7 @@ async fn fetch(
 
 					interpulse::api::modded::LoaderVersion {
 						id: x.version,
-						url: format_url(&version_path),
+						url: crate::utils::format_url(&version_path),
 						stable: x.stable,
 					}
 				})
@@ -247,7 +245,7 @@ async fn fetch(
 		};
 
 		let manifest =
-			interpulse::api::modded::Manifest {
+			Manifest {
 				game_versions: std::iter::once(loader_versions)
 					.chain(fabric_manifest.game.into_iter().map(|x| {
 						interpulse::api::modded::Version {
@@ -261,8 +259,8 @@ async fn fetch(
 
 		upload_files.insert(
 			fabric_manifest_path,
-			UploadFile {
-				file: bytes::Bytes::from(serde_json::to_vec(&manifest)?),
+			crate::utils::UploadFile {
+				file: Bytes::from(serde_json::to_vec(&manifest)?),
 				content_type: Some("application/json".to_string()),
 			},
 		);

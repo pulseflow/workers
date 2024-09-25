@@ -1,186 +1,186 @@
 {
-  "_comment": "Use a newer patched version on osx-arm64, linux-arm64, and linux-arm32",
-  "match": [
-    "org.lwjgl:lwjgl-jemalloc:3.2.2",
-    "org.lwjgl:lwjgl-jemalloc:3.2.1",
-    "org.lwjgl:lwjgl-jemalloc:3.1.6",
-    "org.lwjgl:lwjgl-jemalloc:3.1.2"
-  ],
-  "additionalLibraries": [
-    {
-      "downloads": {
-        "artifact": {
-          "sha1": "cc04eec29b2fa8c298791af9800a3766d9617954",
-          "size": 33790,
-          "url": "https://github.com/theofficialgman/lwjgl3-binaries-arm64/raw/lwjgl-3.2.2/lwjgl-jemalloc.jar"
-        }
-      },
-      "name": "org.lwjgl:lwjgl-jemalloc:3.2.2-gman64.1",
-      "rules": [
-        {
-          "action": "allow",
-          "os": {
-            "name": "linux-arm64"
-          }
-        }
-      ],
-      "include_in_classpath": true,
-      "downloadable": true
-    },
-    {
-      "downloads": {
-        "artifact": {
-          "sha1": "cc04eec29b2fa8c298791af9800a3766d9617954",
-          "size": 33790,
-          "url": "https://github.com/theofficialgman/lwjgl3-binaries-arm64/raw/lwjgl-3.2.2/lwjgl-jemalloc.jar"
-        },
-        "classifiers": {
-          "natives-linux-arm64": {
-            "sha1": "762d7d80c9cdf3a3f3fc80c8a5f86612255edfe0",
-            "size": 156343,
-            "url": "https://github.com/theofficialgman/lwjgl3-binaries-arm64/raw/lwjgl-3.2.2/lwjgl-jemalloc-patched-natives-linux-arm64.jar"
-          }
-        }
-      },
-      "name": "org.lwjgl:lwjgl-jemalloc:3.2.2-gman64.2",
-      "natives": {
-        "linux-arm64": "natives-linux-arm64"
-      },
-      "rules": [
-        {
-          "action": "allow",
-          "os": {
-            "name": "linux-arm64"
-          }
-        }
-      ],
-      "include_in_classpath": true,
-      "downloadable": true
-    },
-    {
-      "downloads": {
-        "artifact": {
-          "sha1": "8224ae2e8fc6d8e1a0fc7d84dc917aa3c440620c",
-          "size": 33790,
-          "url": "https://github.com/theofficialgman/lwjgl3-binaries-arm32/raw/lwjgl-3.2.2/lwjgl-jemalloc.jar"
-        }
-      },
-      "name": "org.lwjgl:lwjgl-jemalloc:3.2.2-gman32.1",
-      "rules": [
-        {
-          "action": "allow",
-          "os": {
-            "name": "linux-arm32"
-          }
-        }
-      ],
-      "include_in_classpath": true,
-      "downloadable": true
-    },
-    {
-      "downloads": {
-        "artifact": {
-          "sha1": "8224ae2e8fc6d8e1a0fc7d84dc917aa3c440620c",
-          "size": 33790,
-          "url": "https://github.com/theofficialgman/lwjgl3-binaries-arm32/raw/lwjgl-3.2.2/lwjgl-jemalloc.jar"
-        },
-        "classifiers": {
-          "natives-linux-arm32": {
-            "sha1": "9163a2a5559ef87bc13ead8fea84417ea3928748",
-            "size": 134237,
-            "url": "https://github.com/theofficialgman/lwjgl3-binaries-arm32/raw/lwjgl-3.2.2/lwjgl-jemalloc-natives-linux-arm32.jar"
-          }
-        }
-      },
-      "name": "org.lwjgl:lwjgl-jemalloc:3.2.2-gman32.1",
-      "natives": {
-        "linux-arm32": "natives-linux-arm32"
-      },
-      "rules": [
-        {
-          "action": "allow",
-          "os": {
-            "name": "linux-arm32"
-          }
-        }
-      ],
-      "include_in_classpath": true,
-      "downloadable": true
-    },
-    {
-      "downloads": {
-        "artifact": {
-          "sha1": "4fb94224378d3588d52d2beb172f2eeafea2d546",
-          "size": 36976,
-          "url": "https://github.com/MinecraftMachina/lwjgl3/releases/download/3.3.1-mmachina.1/lwjgl-jemalloc.jar"
-        }
-      },
-      "name": "org.lwjgl:lwjgl-jemalloc:3.3.1-mmachina.1",
-      "rules": [
-        {
-          "action": "allow",
-          "os": {
-            "name": "osx-arm64"
-          }
-        }
-      ],
-      "include_in_classpath": true,
-      "downloadable": true
-    },
-    {
-      "downloads": {
-        "artifact": {
-          "sha1": "4fb94224378d3588d52d2beb172f2eeafea2d546",
-          "size": 36976,
-          "url": "https://github.com/MinecraftMachina/lwjgl3/releases/download/3.3.1-mmachina.1/lwjgl-jemalloc.jar"
-        },
-        "classifiers": {
-          "natives-osx-arm64": {
-            "sha1": "b0be721188d2e7195798780b1c5fe7eafe8091c1",
-            "size": 103478,
-            "url": "https://github.com/MinecraftMachina/lwjgl3/releases/download/3.3.1-mmachina.1/lwjgl-jemalloc-natives-macos-arm64.jar"
-          }
-        }
-      },
-      "name": "org.lwjgl:lwjgl-jemalloc:3.3.1-mmachina.1",
-      "natives": {
-        "osx-arm64": "natives-osx-arm64"
-      },
-      "rules": [
-        {
-          "action": "allow",
-          "os": {
-            "name": "osx-arm64"
-          }
-        }
-      ],
-      "include_in_classpath": true,
-      "downloadable": true
-    }
-  ],
-  "override": {
-    "rules": [
-      {
-        "action": "allow"
-      },
-      {
-        "action": "disallow",
-        "os": {
-          "name": "linux-arm64"
-        }
-      },
-      {
-        "action": "disallow",
-        "os": {
-          "name": "linux-arm32"
-        }
-      },
-      {
-        "action": "disallow",
-        "os": {
-          "name": "osx-arm64"
-        }
-      }
-    ]
-  }
+	"_comment": "Use a newer patched version on osx-arm64, linux-arm64, and linux-arm32",
+	"match": [
+		"org.lwjgl:lwjgl-jemalloc:3.2.2",
+		"org.lwjgl:lwjgl-jemalloc:3.2.1",
+		"org.lwjgl:lwjgl-jemalloc:3.1.6",
+		"org.lwjgl:lwjgl-jemalloc:3.1.2"
+	],
+	"additionalLibraries": [
+		{
+			"downloads": {
+				"artifact": {
+					"sha1": "cc04eec29b2fa8c298791af9800a3766d9617954",
+					"size": 33790,
+					"url": "https://github.com/theofficialgman/lwjgl3-binaries-arm64/raw/lwjgl-3.2.2/lwjgl-jemalloc.jar"
+				}
+			},
+			"name": "org.lwjgl:lwjgl-jemalloc:3.2.2-gman64.1",
+			"rules": [
+				{
+					"action": "allow",
+					"os": {
+						"name": "linux-arm64"
+					}
+				}
+			],
+			"include_in_classpath": true,
+			"downloadable": true
+		},
+		{
+			"downloads": {
+				"artifact": {
+					"sha1": "cc04eec29b2fa8c298791af9800a3766d9617954",
+					"size": 33790,
+					"url": "https://github.com/theofficialgman/lwjgl3-binaries-arm64/raw/lwjgl-3.2.2/lwjgl-jemalloc.jar"
+				},
+				"classifiers": {
+					"natives-linux-arm64": {
+						"sha1": "762d7d80c9cdf3a3f3fc80c8a5f86612255edfe0",
+						"size": 156343,
+						"url": "https://github.com/theofficialgman/lwjgl3-binaries-arm64/raw/lwjgl-3.2.2/lwjgl-jemalloc-patched-natives-linux-arm64.jar"
+					}
+				}
+			},
+			"name": "org.lwjgl:lwjgl-jemalloc:3.2.2-gman64.2",
+			"natives": {
+				"linux-arm64": "natives-linux-arm64"
+			},
+			"rules": [
+				{
+					"action": "allow",
+					"os": {
+						"name": "linux-arm64"
+					}
+				}
+			],
+			"include_in_classpath": true,
+			"downloadable": true
+		},
+		{
+			"downloads": {
+				"artifact": {
+					"sha1": "8224ae2e8fc6d8e1a0fc7d84dc917aa3c440620c",
+					"size": 33790,
+					"url": "https://github.com/theofficialgman/lwjgl3-binaries-arm32/raw/lwjgl-3.2.2/lwjgl-jemalloc.jar"
+				}
+			},
+			"name": "org.lwjgl:lwjgl-jemalloc:3.2.2-gman32.1",
+			"rules": [
+				{
+					"action": "allow",
+					"os": {
+						"name": "linux-arm32"
+					}
+				}
+			],
+			"include_in_classpath": true,
+			"downloadable": true
+		},
+		{
+			"downloads": {
+				"artifact": {
+					"sha1": "8224ae2e8fc6d8e1a0fc7d84dc917aa3c440620c",
+					"size": 33790,
+					"url": "https://github.com/theofficialgman/lwjgl3-binaries-arm32/raw/lwjgl-3.2.2/lwjgl-jemalloc.jar"
+				},
+				"classifiers": {
+					"natives-linux-arm32": {
+						"sha1": "9163a2a5559ef87bc13ead8fea84417ea3928748",
+						"size": 134237,
+						"url": "https://github.com/theofficialgman/lwjgl3-binaries-arm32/raw/lwjgl-3.2.2/lwjgl-jemalloc-natives-linux-arm32.jar"
+					}
+				}
+			},
+			"name": "org.lwjgl:lwjgl-jemalloc:3.2.2-gman32.1",
+			"natives": {
+				"linux-arm32": "natives-linux-arm32"
+			},
+			"rules": [
+				{
+					"action": "allow",
+					"os": {
+						"name": "linux-arm32"
+					}
+				}
+			],
+			"include_in_classpath": true,
+			"downloadable": true
+		},
+		{
+			"downloads": {
+				"artifact": {
+					"sha1": "4fb94224378d3588d52d2beb172f2eeafea2d546",
+					"size": 36976,
+					"url": "https://github.com/MinecraftMachina/lwjgl3/releases/download/3.3.1-mmachina.1/lwjgl-jemalloc.jar"
+				}
+			},
+			"name": "org.lwjgl:lwjgl-jemalloc:3.3.1-mmachina.1",
+			"rules": [
+				{
+					"action": "allow",
+					"os": {
+						"name": "osx-arm64"
+					}
+				}
+			],
+			"include_in_classpath": true,
+			"downloadable": true
+		},
+		{
+			"downloads": {
+				"artifact": {
+					"sha1": "4fb94224378d3588d52d2beb172f2eeafea2d546",
+					"size": 36976,
+					"url": "https://github.com/MinecraftMachina/lwjgl3/releases/download/3.3.1-mmachina.1/lwjgl-jemalloc.jar"
+				},
+				"classifiers": {
+					"natives-osx-arm64": {
+						"sha1": "b0be721188d2e7195798780b1c5fe7eafe8091c1",
+						"size": 103478,
+						"url": "https://github.com/MinecraftMachina/lwjgl3/releases/download/3.3.1-mmachina.1/lwjgl-jemalloc-natives-macos-arm64.jar"
+					}
+				}
+			},
+			"name": "org.lwjgl:lwjgl-jemalloc:3.3.1-mmachina.1",
+			"natives": {
+				"osx-arm64": "natives-osx-arm64"
+			},
+			"rules": [
+				{
+					"action": "allow",
+					"os": {
+						"name": "osx-arm64"
+					}
+				}
+			],
+			"include_in_classpath": true,
+			"downloadable": true
+		}
+	],
+	"override": {
+		"rules": [
+			{
+				"action": "allow"
+			},
+			{
+				"action": "disallow",
+				"os": {
+					"name": "linux-arm64"
+				}
+			},
+			{
+				"action": "disallow",
+				"os": {
+					"name": "linux-arm32"
+				}
+			},
+			{
+				"action": "disallow",
+				"os": {
+					"name": "osx-arm64"
+				}
+			}
+		]
+	}
 }

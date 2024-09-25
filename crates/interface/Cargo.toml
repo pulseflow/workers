@@ -14,6 +14,9 @@ categories = ["game-development", "api-bindings"]
 [features]
 specta = ["dep:specta"]
 
+[lints]
+workspace = true
+
 [dependencies]
 specta = { workspace = true, optional = true }
 

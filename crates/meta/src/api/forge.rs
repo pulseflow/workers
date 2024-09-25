@@ -1,28 +1,18 @@
-use crate::utils::{
-	download_file, fetch_json, fetch_xml, format_url, insert_mirrored_artifact, Error,
-	MirrorArtifact, UploadFile,
-};
-use chrono::{DateTime, Utc};
-use dashmap::DashMap;
+use crate::utils::prelude::*;
 use futures::io::Cursor;
 use indexmap::IndexMap;
 use interpulse::api::modded::PartialVersionInfo;
 use interpulse::utils::get_path_from_artifact;
 use itertools::Itertools;
-use serde::de::DeserializeOwned;
-use serde::Deserialize;
-use std::collections::HashMap;
-use std::sync::Arc;
-use tokio::sync::Semaphore;
 
-// I HATE FORGE I HATE FORGE
+/// # I HATE FORGE I HATE FORGE
 #[tracing::instrument(skip(semaphore, upload_files, mirror_artifacts))]
 pub async fn fetch_forge(
 	semaphore: Arc<Semaphore>,
-	upload_files: &DashMap<String, UploadFile>,
-	mirror_artifacts: &DashMap<String, MirrorArtifact>,
-) -> Result<(), Error> {
-	let forge_manifest = fetch_json::<IndexMap<String, Vec<String>>>(
+	upload_files: &DashMap<String, crate::utils::UploadFile>,
+	mirror_artifacts: &DashMap<String, crate::utils::MirrorArtifact>,
+) -> Result<(), crate::utils::Error> {
+	let forge_manifest = crate::utils::fetch_json::<IndexMap<String, Vec<String>>>(
 		"https://files.minecraftforge.net/net/minecraftforge/forge/maven-metadata.json",
 		&semaphore,
 	)
@@ -30,20 +20,25 @@ pub async fn fetch_forge(
 
 	let mut format_version = 0;
 
+	// forge versions can be in these formats:
+	// 1.9-12.16.0.1886-failtests
+	// 1.9-12.16.0-1886
+	// 1.9-12.16.0.1880-1.9
+	// 1.14.4-28.1.30
 	let forge_versions = forge_manifest.into_iter().flat_map(|(game_version, versions)| versions.into_iter().map(|loader_version| {
         // this forge version formats to get the actual forge version. Ex: `1.15.2-31.1.87` -> `31.1.87`
         let version_split = loader_version.split('-').nth(1).unwrap_or(&loader_version).to_string();
 
         // forge has three installer formats:
-        // - format zero (unsupported): forge legacy (pre-1.5.2)
+        // - format zero (currently unsupported): forge legacy (pre-1.5.2) (binary patch method)
         //   installation: download patch, download minecraft client JAR. combines patch and client JAR and deletes META-INF/.
         //      (pre-1.3-2) client URL: https://maven.minecraftforge.net/net/minecraftforge/forge/{version}/forge-{version}-client.zip
         //      (pre-1.3-2) server URL: https://maven.minecraftforge.net/net/minecraftforge/forge/{version}/forge-{version}-server.zip
         //      (1.3-2-onwards) universal URL: https://maven.minecraftforge.net/net/minecraftforge/forge/{version}/forge-{version}-universal.zip
-        // - format one: forge installer legacy (1.5.2-1.12.2ish)
+        // - format one: forge installer legacy (1.5.2~1.12.2~)
         //     installation: extracts install_profile.json from archive. "versionInfo" is the profile's version info. converts it to the modern format
         //     extracts forge library from archive; path is at "install"."path"
-        // - format two: forge installer modern
+        // - format two: forge installer modern (~1.12.2-latest) (processors)
         //     installation: extracts install_profile.json from archive. extracts version.json from archive. combi es the two and extract all libraries
         //     which are embedded into the installer jar.
         //     upload, and leave processors job to the launchers
@@ -55,25 +50,24 @@ pub async fn fetch_forge(
 
         ForgeVersion {
             format_version,
-            installer_url: format!("https://maven.minecraftforge.net/net/minecraftforge/forge/{0}/forge-{0}-installer.jar", loader_version),
+            installer_url: format!("https://maven.minecraftforge.net/net/minecraftforge/forge/{loader_version}/forge-{loader_version}-installer.jar"),
             raw: loader_version,
             loader_version: version_split,
             game_version: game_version.clone(),
         }
     })
         .collect::<Vec<_>>())
-        // todo: support format version zero (see above)
-        .filter(|x| x.format_version != 0)
+        .filter(|x| x.format_version != 0) // todo: support format version zero (see above)
         .filter(|x| {
             // these forge versions are broken and cannot be installed
             const BLACKLIST : &[&str] = &[
-                "1.12.2-14.23.5.2851",
-                "1.6.1-8.9.0.749",
-                "1.6.1-8.9.0.751",
-                "1.6.4-9.11.1.960",
-                "1.6.4-9.11.1.961",
-                "1.6.4-9.11.1.963",
-                "1.6.4-9.11.1.964",
+                "1.12.2-14.23.5.2851", // mismatched `data` field type
+                "1.6.1-8.9.0.749", // malformed archive
+                "1.6.1-8.9.0.751", // malformed archive
+                "1.6.4-9.11.1.960", // malformed archive
+                "1.6.4-9.11.1.961", // malformed archive
+                "1.6.4-9.11.1.963", // malformed archive
+                "1.6.4-9.11.1.964", // malformed archive
             ];
 
             !BLACKLIST.contains(&&*x.raw)
@@ -92,61 +86,61 @@ pub async fn fetch_forge(
 	.await
 }
 
+#[derive(Debug, Deserialize)]
+struct XmlMetadata {
+	versioning: XmlVersioning,
+}
+
+#[derive(Debug, Deserialize)]
+struct XmlVersioning {
+	versions: XmlVersions,
+}
+
+#[derive(Debug, Deserialize)]
+struct XmlVersions {
+	version: Vec<String>,
+}
+
 #[tracing::instrument(skip(semaphore, upload_files, mirror_artifacts))]
 pub async fn fetch_neo(
 	semaphore: Arc<Semaphore>,
-	upload_files: &DashMap<String, UploadFile>,
-	mirror_artifacts: &DashMap<String, MirrorArtifact>,
-) -> Result<(), Error> {
-	#[derive(Debug, Deserialize)]
-	struct Metadata {
-		versioning: Versioning,
-	}
-
-	#[derive(Debug, Deserialize)]
-	struct Versioning {
-		versions: Versions,
-	}
-
-	#[derive(Debug, Deserialize)]
-	struct Versions {
-		version: Vec<String>,
-	}
-
-	let forge_versions = fetch_xml::<Metadata>(
+	upload_files: &DashMap<String, crate::utils::UploadFile>,
+	mirror_artifacts: &DashMap<String, crate::utils::MirrorArtifact>,
+) -> crate::utils::Result<()> {
+	let forge_versions = crate::utils::fetch_xml::<XmlMetadata>(
 		"https://maven.neoforged.net/net/neoforged/forge/maven-metadata.xml",
 		&semaphore,
 	)
 	.await?;
-	let neo_versions = fetch_xml::<Metadata>(
+	let neo_versions = crate::utils::fetch_xml::<XmlMetadata>(
 		"https://maven.neoforged.net/net/neoforged/neoforge/maven-metadata.xml",
 		&semaphore,
 	)
 	.await?;
 
 	let parsed_versions = forge_versions.versioning.versions.version.into_iter().map(|loader_version| {
-        // neoforge versions can be in these formats: `1.20.1-47.1.74` and `47.1.82`
-        // this parses them to get the actual Forge version. Ex: `1.20.1-47.1.74` -> `47.1.74`
+        // neoforge(forge) versions can be in these formats: `1.20.1-47.1.74` and `47.1.82`
+        // this parses them to get the actual Forge version. e.g. `1.20.1-47.1.74` -> `47.1.74`
         let version_split = loader_version.split('-').nth(1).unwrap_or(&loader_version).to_string();
 
         Ok(ForgeVersion {
             format_version: 2,
-            installer_url: format!("https://maven.neoforged.net/net/neoforged/forge/{0}/forge-{0}-installer.jar", loader_version),
+            installer_url: format!("https://maven.neoforged.net/net/neoforged/forge/{loader_version}/forge-{loader_version}-installer.jar"),
             raw: loader_version,
             loader_version: version_split,
-            game_version: "1.20.1".to_string(), // all neoforge versions are for 1.20.1
+            game_version: "1.20.1".to_string(), // all neoforge(forge) versions are for 1.20.1
         })
     }).chain(neo_versions.versioning.versions.version.into_iter().map(|loader_version| {
         let mut parts = loader_version.split('.');
 
-        // neoforge versions are in this format: `20.2.29-beta`, `20.6.119`
+        // neoforge(forge) versions are in this format: `20.2.29-beta`, `20.6.119`
         // the first number is the major mc version, the second is the minor mc version, and the third is the neoforge version
         let major = parts.next().ok_or_else(
-            || crate::ErrorKind::InvalidInput(format!("unable to find major game version for neoforge {loader_version}"))
+            || crate::utils::ErrorKind::InvalidInput(format!("unable to find major game version for neoforge {loader_version}"))
         )?;
 
         let minor = parts.next().ok_or_else(
-            || crate::ErrorKind::InvalidInput(format!("Unable to find minor game version for NeoForge {loader_version}"))
+            || crate::utils::ErrorKind::InvalidInput(format!("Unable to find minor game version for NeoForge {loader_version}"))
         )?;
 
         let game_version = if minor == "0" {
@@ -157,18 +151,19 @@ pub async fn fetch_neo(
 
         Ok(ForgeVersion {
             format_version: 2,
-            installer_url: format!("https://maven.neoforged.net/net/neoforged/neoforge/{0}/neoforge-{0}-installer.jar", loader_version),
+            installer_url: format!("https://maven.neoforged.net/net/neoforged/neoforge/{loader_version}/neoforge-{loader_version}-installer.jar"),
             loader_version: loader_version.clone(),
             raw: loader_version,
-            game_version,
+            game_version, // not all neoforge(neo) versions are for 1.20.1
         })
     }))
-        .collect::<Result<Vec<_>, Error>>()?
+        .collect::<crate::utils::Result<Vec<_>>>()?
         .into_iter()
         .filter(|x| {
-        const BLACKLIST: &[&str] = &["1.20.1-47.1.7", "47.1.82"];
-        !BLACKLIST.contains(&&*x.raw)
-    }).collect();
+        	const BLACKLIST: &[&str] = &["1.20.1-47.1.7", "47.1.82"]; // nonexistent (404)
+        	!BLACKLIST.contains(&&*x.raw)
+    	})
+		.collect();
 
 	fetch(
 		interpulse::api::modded::CURRENT_NEOFORGE_FORMAT_VERSION,
@@ -189,12 +184,12 @@ async fn fetch(
 	maven_url: &str,
 	forge_versions: Vec<ForgeVersion>,
 	semaphore: Arc<Semaphore>,
-	upload_files: &DashMap<String, UploadFile>,
-	mirror_artifacts: &DashMap<String, MirrorArtifact>,
-) -> Result<(), Error> {
+	upload_files: &crate::UploadFiles,
+	mirror_artifacts: &crate::MirrorArtifacts,
+) -> crate::utils::Result<()> {
 	tracing::info!("fetching forge mod loader metadata for {mod_loader}!");
-	let existing_manifest = fetch_json::<interpulse::api::modded::Manifest>(
-		&format_url(&format!("{mod_loader}/v{format_version}/manifest.json",)),
+	let existing_manifest = crate::utils::fetch_json::<interpulse::api::modded::Manifest>(
+		&crate::utils::format_url(&format!("{mod_loader}/v{format_version}/manifest.json",)),
 		&semaphore,
 	)
 	.await
@@ -221,21 +216,21 @@ async fn fetch(
 		let forge_installers = futures::future::try_join_all(
 			fetch_versions
 				.iter()
-				.map(|x| download_file(&x.installer_url, None, &semaphore)),
+				.map(|x| crate::utils::download_file(&x.installer_url, None, &semaphore)),
 		)
 		.await?;
 
 		#[tracing::instrument(skip(raw, upload_files, mirror_artifacts))]
 		async fn read_forge_installer(
-			raw: bytes::Bytes,
+			raw: Bytes,
 			loader: &ForgeVersion,
 			maven_url: &str,
 			mod_loader: &str,
-			upload_files: &DashMap<String, UploadFile>,
-			mirror_artifacts: &DashMap<String, MirrorArtifact>,
-		) -> Result<PartialVersionInfo, Error> {
+			upload_files: &crate::UploadFiles,
+			mirror_artifacts: &crate::MirrorArtifacts,
+		) -> crate::utils::Result<PartialVersionInfo> {
+			type ZipFileReader = async_zip::base::read::seek::ZipFileReader<Cursor<Bytes>>;
 			tracing::trace!("reading forge installer for {}", loader.loader_version);
-			type ZipFileReader = async_zip::base::read::seek::ZipFileReader<Cursor<bytes::Bytes>>;
 
 			let cursor = Cursor::new(raw);
 			let mut zip = ZipFileReader::new(cursor).await?;
@@ -244,7 +239,7 @@ async fn fetch(
 			async fn read_file(
 				zip: &mut ZipFileReader,
 				file_name: &str,
-			) -> Result<Option<Vec<u8>>, Error> {
+			) -> crate::utils::Result<Option<Vec<u8>>> {
 				let zip_index_option = zip
 					.file()
 					.entries()
@@ -266,7 +261,7 @@ async fn fetch(
 			async fn read_json<T: DeserializeOwned>(
 				zip: &mut ZipFileReader,
 				file_name: &str,
-			) -> Result<Option<T>, Error> {
+			) -> crate::utils::Result<Option<T>> {
 				if let Some(file) = read_file(zip, file_name).await? {
 					Ok(Some(serde_json::from_slice(&file)?))
 				} else {
@@ -317,7 +312,7 @@ async fn fetch(
 					read_json::<ForgeInstallerProfileV1>(&mut zip, "install_profile.json")
 						.await?
 						.ok_or_else(|| {
-							crate::ErrorKind::InvalidInput(format!(
+							crate::utils::ErrorKind::InvalidInput(format!(
 								"No install_profile.json present for loader {}",
 								loader.installer_url
 							))
@@ -326,7 +321,7 @@ async fn fetch(
 				let forge_library = read_file(&mut zip, &install_profile.install.file_path)
 					.await?
 					.ok_or_else(|| {
-						crate::ErrorKind::InvalidInput(format!(
+						crate::utils::ErrorKind::InvalidInput(format!(
 							"No forge library present for loader {}",
 							loader.installer_url
 						))
@@ -337,8 +332,8 @@ async fn fetch(
 						"maven/{}",
 						get_path_from_artifact(&install_profile.install.path)?
 					),
-					UploadFile {
-						file: bytes::Bytes::from(forge_library),
+					crate::utils::UploadFile {
+						file: Bytes::from(forge_library),
 						content_type: None,
 					},
 				);
@@ -351,15 +346,14 @@ async fn fetch(
 					main_class: install_profile.version_info.main_class,
 					minecraft_arguments: install_profile.version_info.minecraft_arguments.clone(),
 					arguments: install_profile.version_info.minecraft_arguments.map(|x| {
-						[(
+						std::iter::once(&(
 							interpulse::api::minecraft::ArgumentType::Game,
 							x.split(' ')
 								.map(|x| {
 									interpulse::api::minecraft::Argument::Normal(x.to_string())
 								})
 								.collect(),
-						)]
-						.iter()
+						))
 						.cloned()
 						.collect()
 					}),
@@ -368,13 +362,15 @@ async fn fetch(
 						.libraries
 						.into_iter()
 						.map(|mut lib| {
+							// any non-forge libraries extracted are mirrored from other mavens,
+							// unlesss the url doesn't exist or it is available on mojang's servers
 							if let Some(ref url) = lib.url {
 								if lib.name == install_profile.install.path {
-									lib.url = Some(format_url("maven/"));
+									lib.url = Some(crate::utils::format_url("maven/"));
 								} else if !url.is_empty()
 									&& !url.contains("https://libraries.minecraft.net/")
 								{
-									insert_mirrored_artifact(
+									crate::utils::insert_mirrored_artifact(
 										&lib.name,
 										None,
 										vec![
@@ -386,13 +382,13 @@ async fn fetch(
 										mirror_artifacts,
 									)?;
 
-									lib.url = Some(format_url("maven/"))
+									lib.url = Some(crate::utils::format_url("maven/"));
 								}
 							}
 
 							Ok(lib)
 						})
-						.collect::<Result<Vec<_>, Error>>()?,
+						.collect::<crate::utils::Result<Vec<_>>>()?,
 					type_: install_profile.version_info.type_,
 					data: None,
 					processors: None,
@@ -412,11 +408,78 @@ async fn fetch(
 					pub processors: Vec<interpulse::api::modded::Processor>,
 				}
 
+				async fn mirror_forge_library(
+					mut zip: ZipFileReader,
+					mut lib: interpulse::api::minecraft::Library,
+					maven_url: &str,
+					upload_files: &crate::UploadFiles,
+					mirror_artifacts: &crate::MirrorArtifacts,
+				) -> crate::utils::Result<interpulse::api::minecraft::Library> {
+					let artifact_path = get_path_from_artifact(&lib.name)?;
+
+					if let Some(ref mut artifact) =
+						lib.downloads.as_mut().and_then(|x| x.artifact.as_mut())
+					{
+						if !artifact.url.is_empty() {
+							crate::utils::insert_mirrored_artifact(
+								&lib.name,
+								Some(artifact.sha1.clone()),
+								vec![artifact.url.clone()],
+								true,
+								mirror_artifacts,
+							)?;
+
+							artifact.url =
+								crate::utils::format_url(&format!("maven/{artifact_path}"));
+
+							return Ok(lib);
+						}
+					} else if let Some(url) = &lib.url {
+						if !url.is_empty() {
+							crate::utils::insert_mirrored_artifact(
+								&lib.name,
+								None,
+								vec![
+									url.clone(),
+									"https://libraries.minecraft.net/".to_string(),
+									"https://maven.creeperhost.net/".to_string(),
+									maven_url.to_string(),
+								],
+								false,
+								mirror_artifacts,
+							)?;
+
+							lib.url = Some(crate::utils::format_url("maven/"));
+
+							return Ok(lib);
+						}
+					}
+
+					// other libraries are generally available in the `maven/` directory
+					// of the forge installer. if they don't exist yet, they are generated by a processor.
+					let extract_path = format!("maven/{artifact_path}");
+					if let Some(file) = read_file(&mut zip, &extract_path).await? {
+						upload_files.insert(
+							extract_path,
+							crate::utils::UploadFile {
+								file: Bytes::from(file),
+								content_type: None,
+							},
+						);
+
+						lib.url = Some(crate::utils::format_url("maven/"));
+					} else {
+						lib.downloadable = false;
+					}
+
+					Ok(lib)
+				}
+
 				let install_profile =
 					read_json::<ForgeInstallerProfileV2>(&mut zip, "install_profile.json")
 						.await?
 						.ok_or_else(|| {
-							crate::ErrorKind::InvalidInput(format!(
+							crate::utils::ErrorKind::InvalidInput(format!(
 								"No install_profile.json present for loader {}",
 								loader.installer_url
 							))
@@ -425,7 +488,7 @@ async fn fetch(
 				let mut version_info = read_json::<PartialVersionInfo>(&mut zip, "version.json")
 					.await?
 					.ok_or_else(|| {
-						crate::ErrorKind::InvalidInput(format!(
+						crate::utils::ErrorKind::InvalidInput(format!(
 							"No version.json present for loader {}",
 							loader.installer_url
 						))
@@ -440,70 +503,6 @@ async fn fetch(
 						x
 					}));
 
-				async fn mirror_forge_library(
-					mut zip: ZipFileReader,
-					mut lib: interpulse::api::minecraft::Library,
-					maven_url: &str,
-					upload_files: &DashMap<String, UploadFile>,
-					mirror_artifacts: &DashMap<String, MirrorArtifact>,
-				) -> Result<interpulse::api::minecraft::Library, Error> {
-					let artifact_path = get_path_from_artifact(&lib.name)?;
-
-					if let Some(ref mut artifact) =
-						lib.downloads.as_mut().and_then(|x| x.artifact.as_mut())
-					{
-						if !artifact.url.is_empty() {
-							insert_mirrored_artifact(
-								&lib.name,
-								Some(artifact.sha1.clone()),
-								vec![artifact.url.clone()],
-								true,
-								mirror_artifacts,
-							)?;
-
-							artifact.url = format_url(&format!("maven/{}", artifact_path));
-
-							return Ok(lib);
-						}
-					} else if let Some(url) = &lib.url {
-						if !url.is_empty() {
-							insert_mirrored_artifact(
-								&lib.name,
-								None,
-								vec![
-									url.clone(),
-									"https://libraries.minecraft.net/".to_string(),
-									"https://maven.creeperhost.net/".to_string(),
-									maven_url.to_string(),
-								],
-								false,
-								mirror_artifacts,
-							)?;
-
-							lib.url = Some(format_url("maven/"));
-
-							return Ok(lib);
-						}
-					}
-
-					let extract_path = format!("maven/{artifact_path}");
-					if let Some(file) = read_file(&mut zip, &extract_path).await? {
-						upload_files.insert(
-							extract_path,
-							UploadFile {
-								file: bytes::Bytes::from(file),
-								content_type: None,
-							},
-						);
-
-						lib.url = Some(format_url("maven/"));
-					} else {
-						lib.downloadable = false;
-					}
-
-					Ok(lib)
-				}
-
 				version_info.libraries =
 					futures::future::try_join_all(version_info.libraries.into_iter().map(|lib| {
 						mirror_forge_library(
@@ -516,53 +515,53 @@ async fn fetch(
 					}))
 					.await?;
 
-				// In Minecraft Forge modern installers, processors are run during the install process. Some processors
-				// are extracted from the installer JAR. This function finds these files, extracts them, and uploads them
+				// in forge modern installers, processors are run during the install process. some processors
+				// are extracted from the installer jar. this function finds these files, extracts them, and uploads them
 				// and registers them as libraries instead.
-				// Ex:
+				// for example:
 				// "BINPATCH": {
 				//      "client": "/data/client.lzma",
 				//      "server": "/data/server.lzma"
 				//     },
-				// Becomes:
+				// becomes:
 				// "BINPATCH": {
 				//      "client": "[net.minecraftforge:forge:1.20.3-49.0.1:shim:client@lzma]",
 				//      "server": "[net.minecraftforge:forge:1.20.3-49.0.1:shim:server@lzma]"
 				// },
-				// And the resulting library is added to the profile's libraries
+				// the resulting library is added to the profile's libraries
 				let mut new_data = HashMap::new();
 				for (key, entry) in install_profile.data {
 					async fn extract_data(
 						zip: &mut ZipFileReader,
 						key: &str,
 						value: &str,
-						upload_files: &DashMap<String, UploadFile>,
+						upload_files: &crate::UploadFiles,
 						libs: &mut Vec<interpulse::api::minecraft::Library>,
 						mod_loader: &str,
 						version: &ForgeVersion,
-					) -> Result<String, Error> {
+					) -> crate::utils::Result<String> {
 						let extract_file = read_file(zip, &value[1..value.len()])
 							.await?
 							.ok_or_else(|| {
-								crate::ErrorKind::InvalidInput(format!(
+								crate::utils::ErrorKind::InvalidInput(format!(
 									"Unable reading data key {key} at path {value}",
 								))
 							})?;
 
 						let file_name = value.split('/').last().ok_or_else(|| {
-							crate::ErrorKind::InvalidInput(format!(
+							crate::utils::ErrorKind::InvalidInput(format!(
 								"Unable reading filename for data key {key} at path {value}",
 							))
 						})?;
 
 						let mut file = file_name.split('.');
 						let file_name = file.next().ok_or_else(|| {
-							crate::ErrorKind::InvalidInput(format!(
+							crate::utils::ErrorKind::InvalidInput(format!(
 								"Unable reading filename only for data key {key} at path {value}",
 							))
 						})?;
 						let ext = file.next().ok_or_else(|| {
-							crate::ErrorKind::InvalidInput(format!(
+							crate::utils::ErrorKind::InvalidInput(format!(
 								"Unable reading extension only for data key {key} at path {value}",
 							))
 						})?;
@@ -574,8 +573,8 @@ async fn fetch(
 
 						upload_files.insert(
 							format!("maven/{}", get_path_from_artifact(&path)?),
-							UploadFile {
-								file: bytes::Bytes::from(extract_file),
+							crate::utils::UploadFile {
+								file: Bytes::from(extract_file),
 								content_type: None,
 							},
 						);
@@ -584,7 +583,7 @@ async fn fetch(
 							downloads: None,
 							extract: None,
 							name: path.clone(),
-							url: Some(format_url("maven/")),
+							url: Some(crate::utils::format_url("maven/")),
 							natives: None,
 							rules: None,
 							checksums: None,
@@ -635,7 +634,7 @@ async fn fetch(
 
 				Ok(version_info)
 			} else {
-				Err(crate::ErrorKind::InvalidInput(format!(
+				Err(crate::utils::ErrorKind::InvalidInput(format!(
 					"Unknown format version {} for loader {}",
 					loader.format_version, loader.installer_url
 				))
@@ -662,7 +661,7 @@ async fn fetch(
 
 		let serialized_version_manifests = forge_version_infos
 			.iter()
-			.map(|x| serde_json::to_vec(x).map(bytes::Bytes::from))
+			.map(|x| serde_json::to_vec(x).map(Bytes::from))
 			.collect::<Result<Vec<_>, serde_json::Error>>()?;
 
 		serialized_version_manifests
@@ -678,7 +677,7 @@ async fn fetch(
 
 				upload_files.insert(
 					version_path,
-					UploadFile {
+					crate::utils::UploadFile {
 						file: bytes,
 						content_type: Some("application/json".to_string()),
 					},
@@ -698,7 +697,7 @@ async fn fetch(
 					stable: true,
 					loaders: loaders
 						.map(|x| interpulse::api::modded::LoaderVersion {
-							url: format_url(&format!(
+							url: crate::utils::format_url(&format!(
 								"{mod_loader}/v{format_version}/versions/{}.json",
 								x.loader_version
 							)),
@@ -712,8 +711,8 @@ async fn fetch(
 
 		upload_files.insert(
 			forge_manifest_path,
-			UploadFile {
-				file: bytes::Bytes::from(serde_json::to_vec(&manifest)?),
+			crate::utils::UploadFile {
+				file: Bytes::from(serde_json::to_vec(&manifest)?),
 				content_type: Some("application/json".to_string()),
 			},
 		);

@@ -1,0 +1,28 @@
+{
+	"_comment": "Add linux-arm32 support for LWJGL 3.3.1",
+	"match": [
+		"org.lwjgl:lwjgl-jemalloc:3.3.1"
+	],
+	"additionalLibraries": [
+		{
+			"downloads": {
+				"artifact": {
+					"sha1": "a96a6d6cb3876d7813fcee53c3c24f246aeba3b3",
+					"size": 136157,
+					"url": "https://build.lwjgl.org/release/3.3.1/bin/lwjgl-jemalloc/lwjgl-jemalloc-natives-linux-arm32.jar"
+				}
+			},
+			"name": "org.lwjgl:lwjgl-jemalloc-natives-linux-arm32:3.3.1-lwjgl.1",
+			"rules": [
+				{
+					"action": "allow",
+					"os": {
+						"name": "linux-arm32"
+					}
+				}
+			],
+			"include_in_classpath": true,
+			"downloadable": true
+		}
+	]
+}

@@ -1,0 +1,28 @@
+{
+	"_comment": "Add linux-arm32 support for LWJGL 3.3.2",
+	"match": [
+		"org.lwjgl:lwjgl-freetype:3.3.2"
+	],
+	"additionalLibraries": [
+		{
+			"downloads": {
+				"artifact": {
+					"sha1": "b7f77ceb951182659fd400437272aa7e96709968",
+					"size": 924657,
+					"url": "https://build.lwjgl.org/release/3.3.2/bin/lwjgl-freetype/lwjgl-freetype-natives-linux-arm32.jar"
+				}
+			},
+			"name": "org.lwjgl:lwjgl-freetype-natives-linux-arm32:3.3.2-lwjgl.1",
+			"rules": [
+				{
+					"action": "allow",
+					"os": {
+						"name": "linux-arm32"
+					}
+				}
+			],
+			"include_in_classpath": true,
+			"downloadable": true
+		}
+	]
+}

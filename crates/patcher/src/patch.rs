@@ -6,6 +6,7 @@ use interpulse::utils::prelude::*;
 /// A structure used to represent a patch
 pub struct LibraryPatch {
 	#[serde(rename = "_comment")]
+	#[allow(clippy::pub_underscore_fields)]
 	pub _comment: String,
 	#[serde(rename = "match")]
 	pub match_: Vec<String>,
@@ -18,69 +19,58 @@ pub struct LibraryPatch {
 	pub patch_additional_libraries: Option<bool>,
 }
 
-pub fn collect_patch_files(dir: &Option<String>, file: &Option<String>) -> anyhow::Result<()> {
-	let dir = dir.as_deref().unwrap_or("./patches");
-	let file = file.as_deref().unwrap_or("./crates/meta/library.json");
+pub fn collect_patch_files(dir: &String, dest: &String) -> anyhow::Result<()> {
+	let dir = std::path::Path::new(&dir);
+	let dest = std::path::Path::new(&dest);
 
-	let mut patches: Vec<LibraryPatch> = Vec::new();
-	let files = std::fs::read_dir(dir)?.map(|file| file.expect("could not get file").path());
+	let patches: Vec<LibraryPatch> = std::fs::read_dir(dir)?
+		.filter_map(Result::ok)
+		.filter(|p| p.path().extension().map_or(false, |e| e == "json"))
+		.filter_map(|p| serde_json::from_str(&std::fs::read_to_string(p.path()).ok()?).ok())
+		.collect();
 
-	for file_path in files {
-		if let Some(extension) = file_path.extension() {
-			if extension == "json" {
-				let file_contents = std::fs::read_to_string(file_path)?;
-				let patch: LibraryPatch = serde_json::from_str(&file_contents)?;
-				patches.push(patch);
-			}
-		}
-	}
-
-	std::fs::write(file, serde_json::to_string(&patches)?)?;
+	std::fs::write(dest, serde_json::to_string(&patches)?)?;
 
 	Ok(())
 }
 
-pub fn uncollect_patch_files(dir: &Option<String>, file: &Option<String>) -> anyhow::Result<()> {
-	let dir = dir.as_deref().unwrap_or("./patches");
-	let file = file.as_deref().unwrap_or("./crates/meta/library.json");
+pub fn uncollect_patch_files(dir: &String, dest: &String) -> anyhow::Result<()> {
+	let dir = std::path::Path::new(&dir);
+	let dest = std::path::Path::new(&dest);
 
-	let output = std::path::Path::new(dir);
-	let data = std::fs::read_to_string(file)?;
+	let data = std::fs::read_to_string(dest)?;
 	let patches: Vec<LibraryPatch> = serde_json::from_str(&data)?;
 
 	let mut file_names: HashMap<String, usize> = HashMap::new();
 	let mut result: Vec<(String, LibraryPatch)> = Vec::new();
 
-	for patch in patches.iter() {
-		let spliced = patch
-			.match_
-			.first()
-			.expect("could not get match name")
-			.split(':')
-			.collect::<Vec<&str>>()[1];
-		let tmp_file_name = format!("{}.json", spliced);
-		let unique_file_name = generate_unique_file_name(&mut file_names, tmp_file_name);
-
-		file_names.insert(unique_file_name.clone(), 1);
-		result.push((unique_file_name, patch.clone()));
+	for patch in &patches {
+		if let Some(spliced) = patch.match_.first().and_then(|m| m.split(':').nth(1)) {
+			result.push((
+				generate_unique_file_name(&mut file_names, spliced),
+				patch.clone(),
+			));
+		}
 	}
 
-	for (file_name, patch) in &result {
-		let writable = serde_json::to_string_pretty(patch)?;
-		std::fs::write(output.join(file_name), writable)?;
+	for (file_name, patch) in result {
+		let output_path = dir.join(file_name);
+		let file_writer = std::io::BufWriter::new(std::fs::File::create(output_path)?);
+		let formatter = serde_json::ser::PrettyFormatter::with_indent(b"	");
+		let mut serializer = serde_json::Serializer::with_formatter(file_writer, formatter);
+		patch.serialize(&mut serializer)?;
 	}
 
 	Ok(())
 }
 
-fn generate_unique_file_name(file_names: &mut HashMap<String, usize>, base_name: String) -> String {
-	let mut count = 1;
-	let mut file_name = base_name.clone();
+fn generate_unique_file_name(file_names: &mut HashMap<String, usize>, base_name: &str) -> String {
+	let count = file_names.entry(base_name.to_string()).or_insert(0);
+	*count += 1;
 
-	while file_names.contains_key(&file_name) {
-		count += 1;
-		file_name = format!("{}-{}.json", base_name, count);
+	if *count == 1 {
+		format!("{}.json", base_name)
+	} else {
+		format!("{base_name}-{count}.json")
 	}
-
-	file_name
 }

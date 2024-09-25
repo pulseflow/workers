@@ -12,6 +12,8 @@ pub const CURRENT_QUILT_FORMAT_VERSION: usize = 0;
 pub const CURRENT_NEOFORGE_FORMAT_VERSION: usize = 0;
 /// The latest version of the format the legacy fabric model structs deserialize to
 pub const CURRENT_LEGACY_FABRIC_FORMAT_VERSION: usize = 0;
+/// The latest version of the format the cleanroom model structs deserialize to
+pub const CURRENT_CLEANROOM_FORMAT_VERSION: usize = 0;
 
 /// The dummy replace string library names, inheritsFrom, and version names should be replaced with
 pub const DUMMY_REPLACE_STRING: &str = "${interpulse.gameVersion}";
@@ -94,6 +96,7 @@ pub struct Processor {
 }
 
 /// Merges a partial version into a complete one
+#[must_use]
 pub fn merge_partial_version(partial: PartialVersionInfo, merge: VersionInfo) -> VersionInfo {
 	let merge_id = merge.id.clone();
 	let mut libraries = vec![];
@@ -101,13 +104,13 @@ pub fn merge_partial_version(partial: PartialVersionInfo, merge: VersionInfo) ->
 	for mut lib in merge.libraries {
 		let lib_artifact = lib.name.rsplit_once(':').map(|x| x.0);
 		if let Some(lib_artifact) = lib_artifact {
-			if !partial.libraries.iter().any(|x| {
+			if partial.libraries.iter().any(|x| {
 				let target_artifact = x.name.rsplit_once(':').map(|x| x.0);
 				target_artifact == Some(lib_artifact) && x.include_in_classpath
 			}) {
-				libraries.push(lib);
-			} else {
 				lib.include_in_classpath = false;
+			} else {
+				libraries.push(lib);
 			}
 		} else {
 			libraries.push(lib);
@@ -117,8 +120,6 @@ pub fn merge_partial_version(partial: PartialVersionInfo, merge: VersionInfo) ->
 	VersionInfo {
 		arguments: if let Some(partial_args) = partial.arguments {
 			if let Some(merge_args) = merge.arguments {
-				let mut new_map = HashMap::new();
-
 				fn add_keys(
 					new_map: &mut HashMap<ArgumentType, Vec<Argument>>,
 					args: HashMap<ArgumentType, Vec<Argument>>,
@@ -134,6 +135,7 @@ pub fn merge_partial_version(partial: PartialVersionInfo, merge: VersionInfo) ->
 					}
 				}
 
+				let mut new_map = HashMap::new();
 				add_keys(&mut new_map, merge_args);
 				add_keys(&mut new_map, partial_args);
 

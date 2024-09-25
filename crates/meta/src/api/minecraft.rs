@@ -1,6 +1,4 @@
 use crate::utils::{download_file, fetch_json, format_url, sha1_async};
-use crate::{Error, MirrorArtifact, UploadFile};
-use dashmap::DashMap;
 use interpulse::api::minecraft::{
 	merge_partial_library, Library, VersionInfo, VersionManifest, VERSION_MANIFEST_URL,
 };
@@ -11,9 +9,9 @@ use tokio::sync::Semaphore;
 #[tracing::instrument(skip(semaphore, upload_files, _mirror_artifacts))]
 pub async fn fetch(
 	semaphore: Arc<Semaphore>,
-	upload_files: &DashMap<String, UploadFile>,
-	_mirror_artifacts: &DashMap<String, MirrorArtifact>,
-) -> Result<(), Error> {
+	upload_files: &crate::UploadFiles,
+	_mirror_artifacts: &crate::MirrorArtifacts,
+) -> crate::utils::Result<()> {
 	tracing::info!("fetching minecraft metadata!");
 	let existing_manifest = fetch_json::<VersionManifest>(
 		&format_url(&format!(
@@ -29,6 +27,7 @@ pub async fn fetch(
 	// TODO: experimental snapshots: https://github.com/PrismLauncher/meta/blob/main/meta/common/mojang-minecraft-experiments.json
 	// TODO: old snapshots: https://github.com/PrismLauncher/meta/blob/main/meta/common/mojang-minecraft-old-snapshots.json
 
+	// we check our own minecraft manifest and compare them to mojang's, as to avoid unnecessary processing.
 	let (fetch_versions, existing_versions) = if let Some(mut existing_manifest) = existing_manifest
 	{
 		let (mut fetch_versions, mut existing_versions) = (Vec::new(), Vec::new());
@@ -44,8 +43,7 @@ pub async fn fetch(
 				if existing_version
 					.original_sha1
 					.as_ref()
-					.map(|x| x == &version.sha1)
-					.unwrap_or(false)
+					.is_some_and(|x| x == &version.sha1)
 				{
 					existing_versions.push(existing_version);
 				} else {
@@ -72,7 +70,8 @@ pub async fn fetch(
 		.map(|x| serde_json::from_slice(&x))
 		.collect::<Result<Vec<VersionInfo>, serde_json::Error>>()?;
 
-		// Patch libraries of Minecraft versions for M-series Mac Support, Better Linux Compatibility, etc
+		// we patch certain libraies of Minecraft versions for apple silicon support, linux compat, and other bugfixes that
+		// can be fixed by simply replacing one library with an api-identical patched library.
 		let library_patches = fetch_library_patches()?;
 		let patched_version_manifests = version_manifests
 			.into_iter()
@@ -81,9 +80,9 @@ pub async fn fetch(
 					let mut new_libraries = Vec::new();
 					for library in x.libraries {
 						let mut libs = patch_library(&library_patches, library);
-						new_libraries.append(&mut libs)
+						new_libraries.append(&mut libs);
 					}
-					x.libraries = new_libraries
+					x.libraries = new_libraries;
 				}
 
 				x
@@ -101,6 +100,7 @@ pub async fn fetch(
 		)
 		.await?;
 
+		// uploads the new version manifest and adds it to hhe version manifest
 		let mut new_versions = patched_version_manifests
 			.into_iter()
 			.zip(serialized_version_manifests.into_iter())
@@ -115,7 +115,7 @@ pub async fn fetch(
 				let url = format_url(&version_path);
 				upload_files.insert(
 					version_path,
-					UploadFile {
+					crate::utils::UploadFile {
 						file: bytes,
 						content_type: Some("application/json".to_string()),
 					},
@@ -152,7 +152,7 @@ pub async fn fetch(
 
 		upload_files.insert(
 			version_manifest_path,
-			UploadFile {
+			crate::utils::UploadFile {
 				file: bytes::Bytes::from(serde_json::to_vec(&new_manifest)?),
 				content_type: Some("application/json".to_string()),
 			},
@@ -162,11 +162,15 @@ pub async fn fetch(
 	Ok(())
 }
 
-fn fetch_library_patches() -> Result<Vec<LibraryPatch>, Error> {
+/// includes and parses an array of [`LibraryPatch`] from `../../library.json`.
+///
+/// note: this uses the [`include_bytes`] macro, be careful of the file size of `library.json`.
+fn fetch_library_patches() -> crate::utils::Result<Vec<LibraryPatch>> {
 	let patches = include_bytes!("../../library.json");
 	Ok(serde_json::from_slice(patches)?)
 }
 
+/// patches a [`Library`] based on a ruleset defined in an array of [`LibraryPatch`]es.
 pub fn patch_library(patches: &Vec<LibraryPatch>, mut library: Library) -> Vec<Library> {
 	let mut val = Vec::new();
 
@@ -175,7 +179,8 @@ pub fn patch_library(patches: &Vec<LibraryPatch>, mut library: Library) -> Vec<L
 		.filter(|x| x.match_.contains(&library.name))
 		.collect::<Vec<_>>();
 
-	if !actual_patches.is_empty() {
+	if actual_patches.is_empty() {
+	} else {
 		for patch in actual_patches {
 			if let Some(override_) = &patch.override_ {
 				library = merge_partial_library(override_.clone(), library);
@@ -185,18 +190,16 @@ pub fn patch_library(patches: &Vec<LibraryPatch>, mut library: Library) -> Vec<L
 				for additional_library in additional_libraries {
 					if patch.patch_additional_libraries.unwrap_or(false) {
 						let mut libs = patch_library(patches, additional_library.clone());
-						val.append(&mut libs)
+						val.append(&mut libs);
 					} else {
 						val.push(additional_library.clone());
 					}
 				}
 			}
 		}
-
-		val.push(library);
-	} else {
-		val.push(library);
 	}
+
+	val.push(library);
 
 	val
 }

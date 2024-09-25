@@ -54,6 +54,7 @@ impl<E: Into<ErrorKind>> From<E> for Error {
 }
 
 impl ErrorKind {
+	#[must_use]
 	pub fn as_error(self) -> Error {
 		self.into()
 	}

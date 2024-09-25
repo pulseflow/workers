@@ -14,10 +14,10 @@ indent_size = 2
 # Rust
 # https://github.com/rust-lang/rust/blob/master/src/doc/style/style/whitespace.md
 [*.rs]
-indent_size = 4
 insert_final_newline = false
 trim_trailing_whitespace = true
 
+# yaml is the worst language in the world
 [*.{yaml,yml}]
 indent_style = space
 indent_size = 2

@@ -8,7 +8,7 @@ pub const CURRENT_FORMAT_VERSION: usize = 0;
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 #[serde(rename_all = "snake_case")]
-/// The version type
+/// The version type of Minecraft
 pub enum VersionType {
 	/// A major version, which is stable for all players to use
 	Release,
@@ -22,12 +22,13 @@ pub enum VersionType {
 
 impl VersionType {
 	/// Converts the version type to a string
-	pub fn as_str(&self) -> &'static str {
+	#[must_use]
+	pub const fn as_str(&self) -> &'static str {
 		match self {
-			VersionType::Release => "release",
-			VersionType::Snapshot => "snapshot",
-			VersionType::OldAlpha => "old_alpha",
-			VersionType::OldBeta => "old_beta",
+			Self::Release => "release",
+			Self::Snapshot => "snapshot",
+			Self::OldAlpha => "old_alpha",
+			Self::OldBeta => "old_beta",
 		}
 	}
 }
@@ -152,7 +153,7 @@ pub struct LibraryDownloads {
 	pub artifact: Option<LibraryDownload>,
 	#[serde(skip_serializing_if = "Option::is_none")]
 	/// Conditional files that may be needed to be downloaded alongside the library
-	/// The HashMap key specifies a classifier as additional information for downloading files
+	/// The `HashMap` key specifies a classifier as additional information for downloading files
 	pub classifiers: Option<HashMap<String, LibraryDownload>>,
 }
 
@@ -172,7 +173,7 @@ pub enum RuleAction {
 #[serde(rename_all = "kebab-case")]
 /// An enum representing the different types of operating systems
 pub enum Os {
-	/// MacOS (x86)
+	/// `MacOS` (x86)
 	Osx,
 	/// M1-Based Macs
 	OsxArm64,
@@ -198,7 +199,7 @@ pub struct OsRule {
 	/// The name of the OS
 	pub name: Option<Os>,
 	#[serde(skip_serializing_if = "Option::is_none")]
-	/// The version of the OS. This is normally a RegEx
+	/// The version of the OS. This is normally a `RegEx`
 	pub version: Option<String>,
 	#[serde(skip_serializing_if = "Option::is_none")]
 	/// The architecture of the OS
@@ -324,6 +325,7 @@ pub struct PartialLibrary {
 }
 
 /// Merges a partial library to make a complete library
+#[must_use]
 pub fn merge_partial_library(partial: PartialLibrary, mut merge: Library) -> Library {
 	if let Some(downloads) = partial.downloads {
 		if let Some(merge_downloads) = &mut merge.downloads {
@@ -340,17 +342,17 @@ pub fn merge_partial_library(partial: PartialLibrary, mut merge: Library) -> Lib
 				}
 			}
 		} else {
-			merge.downloads = Some(downloads)
+			merge.downloads = Some(downloads);
 		}
 	}
 	if let Some(extract) = partial.extract {
-		merge.extract = Some(extract)
+		merge.extract = Some(extract);
 	}
 	if let Some(name) = partial.name {
-		merge.name = name
+		merge.name = name;
 	}
 	if let Some(url) = partial.url {
-		merge.url = Some(url)
+		merge.url = Some(url);
 	}
 	if let Some(natives) = partial.natives {
 		if let Some(merge_natives) = &mut merge.natives {
@@ -367,23 +369,23 @@ pub fn merge_partial_library(partial: PartialLibrary, mut merge: Library) -> Lib
 				merge_rules.push(rule);
 			}
 		} else {
-			merge.rules = Some(rules)
+			merge.rules = Some(rules);
 		}
 	}
 	if let Some(checksums) = partial.checksums {
-		merge.checksums = Some(checksums)
+		merge.checksums = Some(checksums);
 	}
 	if let Some(include_in_classpath) = partial.include_in_classpath {
-		merge.include_in_classpath = include_in_classpath
+		merge.include_in_classpath = include_in_classpath;
 	}
 
 	merge
 }
 
-fn default_include_in_classpath() -> bool {
+const fn default_include_in_classpath() -> bool {
 	true
 }
-fn default_downloadable() -> bool {
+const fn default_downloadable() -> bool {
 	true
 }
 

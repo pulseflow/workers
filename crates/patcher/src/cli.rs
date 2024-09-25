@@ -11,15 +11,17 @@ pub struct Cli {
 #[derive(Subcommand)]
 pub enum Commands {
 	/// merge a directory of unmerged patch filesinto a merged patch file
-	MergeFiles(DirectoryArgs),
+	Merge(DirectoryArgs),
 	/// unmerge a merged patch file into a directory contaning each patch file
-	UnmergeFiles(DirectoryArgs),
+	Unmerge(DirectoryArgs),
 }
 
 #[derive(Args)]
 pub struct DirectoryArgs {
 	/// the directory containing the patch files
-	pub dir: Option<String>,
+	#[arg(default_value_t = String::from("./patches"))]
+	pub dir: String,
 	/// the directory or file containing the merged patch files
-	pub dest: Option<String>,
+	#[arg(default_value_t = String::from("./crates/meta/library.json"))]
+	pub dest: String,
 }

@@ -1,10 +1,4 @@
-use crate::utils::{
-	check_env_vars, format_url, upload_file_to_bucket, upload_url_to_bucket_mirrors, Error,
-	ErrorKind, MirrorArtifact, Result, UploadFile, REQWEST_CLIENT,
-};
-use dashmap::DashMap;
-use std::sync::Arc;
-use tokio::sync::Semaphore;
+use crate::utils::prelude::*;
 use tracing_error::ErrorLayer;
 use tracing_subscriber::prelude::*;
 use tracing_subscriber::{fmt, EnvFilter};
@@ -12,8 +6,11 @@ use tracing_subscriber::{fmt, EnvFilter};
 mod api;
 pub mod utils;
 
+pub type UploadFiles = DashMap<String, utils::UploadFile>;
+pub type MirrorArtifacts = DashMap<String, utils::MirrorArtifact>;
+
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() -> utils::Result<()> {
 	dotenvy::dotenv().ok();
 
 	let subscriber = tracing_subscriber::registry()
@@ -24,7 +21,7 @@ async fn main() -> Result<()> {
 	tracing::subscriber::set_global_default(subscriber)?;
 	tracing::info!("initialized core metadata tasks. starting!");
 
-	if check_env_vars() {
+	if utils::check_env_vars() {
 		tracing::error!(
 			"some environment variables are missing! please check your environment and re run"
 		);
@@ -39,8 +36,8 @@ async fn main() -> Result<()> {
 			.unwrap_or(10),
 	));
 
-	let upload_files: DashMap<String, UploadFile> = DashMap::new();
-	let mirror_artifacts: DashMap<String, MirrorArtifact> = DashMap::new();
+	let upload_files: UploadFiles = DashMap::new();
+	let mirror_artifacts: MirrorArtifacts = DashMap::new();
 
 	api::minecraft::fetch(semaphore.clone(), &upload_files, &mirror_artifacts).await?;
 	api::fabric::fetch_fabric(semaphore.clone(), &upload_files, &mirror_artifacts).await?;
@@ -51,7 +48,7 @@ async fn main() -> Result<()> {
 
 	tracing::info!("uploading metadata files to bucket");
 	futures::future::try_join_all(upload_files.iter().map(|x| {
-		upload_file_to_bucket(
+		utils::upload_file_to_bucket(
 			x.key().clone(),
 			x.value().file.clone(),
 			x.value().content_type.clone(),
@@ -62,7 +59,7 @@ async fn main() -> Result<()> {
 
 	tracing::info!("uploading mirrored artifacts to bucket");
 	futures::future::try_join_all(mirror_artifacts.iter().map(|x| {
-		upload_url_to_bucket_mirrors(
+		utils::upload_url_to_bucket_mirrors(
 			format!("maven/{}", x.key()),
 			x.value()
 				.mirrors
@@ -91,17 +88,17 @@ async fn main() -> Result<()> {
 			if let Ok(zone_id) = dotenvy::var("CLOUDFLARE_ZONE_ID") {
 				let cache_clears = upload_files
 					.into_iter()
-					.map(|x| format_url(&x.0))
+					.map(|x| utils::format_url(&x.0))
 					.chain(
 						mirror_artifacts
 							.into_iter()
-							.map(|x| format_url(&format!("maven/{}", x.0))),
+							.map(|x| utils::format_url(&format!("maven/{}", x.0))),
 					)
 					.collect::<Vec<_>>();
 
 				tracing::info!("clearing cloudflare chunks");
 				for chunk in cache_clears.chunks(500) {
-					REQWEST_CLIENT
+					utils::REQWEST_CLIENT
 						.post(format!(
 							"https://api.cloudflare.com/client/v4/zones/{zone_id}/purge_cache"
 						))
@@ -111,12 +108,12 @@ async fn main() -> Result<()> {
 						}))
 						.send()
 						.await
-						.map_err(|err| ErrorKind::Fetch {
+						.map_err(|err| utils::ErrorKind::Fetch {
 							inner: err,
 							item: "cloudflare clear cache".to_string(),
 						})?
 						.error_for_status()
-						.map_err(|err| ErrorKind::Fetch {
+						.map_err(|err| utils::ErrorKind::Fetch {
 							inner: err,
 							item: "cloudflare clear cache".to_string(),
 						})?;

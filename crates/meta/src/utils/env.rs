@@ -1,9 +1,8 @@
-use crate::Result;
-use dashmap::{DashMap, DashSet};
+use crate::utils::prelude::*;
 use interpulse::utils::get_path_from_artifact;
 
 pub struct UploadFile {
-	pub file: bytes::Bytes,
+	pub file: Bytes,
 	pub content_type: Option<String>,
 }
 
@@ -19,13 +18,14 @@ pub struct Mirror {
 }
 
 #[tracing::instrument(skip(mirror_artifacts))]
+#[allow(clippy::significant_drop_tightening, reason = "clippy is silly")]
 pub fn insert_mirrored_artifact(
 	artifact: &str,
 	sha1: Option<String>,
 	mirrors: Vec<String>,
 	entire_url: bool,
-	mirror_artifacts: &DashMap<String, MirrorArtifact>,
-) -> Result<()> {
+	mirror_artifacts: &crate::MirrorArtifacts,
+) -> crate::utils::Result<()> {
 	let val = mirror_artifacts
 		.entry(get_path_from_artifact(artifact)?)
 		.or_insert(MirrorArtifact {
@@ -43,9 +43,8 @@ pub fn insert_mirrored_artifact(
 	Ok(())
 }
 
+#[must_use]
 pub fn check_env_vars() -> bool {
-	let mut failed = false;
-
 	fn check_var<T: std::str::FromStr>(var: &str) -> bool {
 		if dotenvy::var(var)
 			.ok()
@@ -63,6 +62,7 @@ pub fn check_env_vars() -> bool {
 		}
 	}
 
+	let mut failed = false;
 	failed |= check_var::<String>("BASE_URL");
 	failed |= check_var::<String>("S3_ACCESS_TOKEN");
 	failed |= check_var::<String>("S3_SECRET");

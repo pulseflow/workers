@@ -1,10 +1,6 @@
-use crate::{Error, ErrorKind};
-use bytes::Bytes;
+use crate::utils::prelude::*;
 use s3::creds::Credentials;
 use s3::{Bucket, Region};
-use serde::de::DeserializeOwned;
-use std::sync::Arc;
-use tokio::sync::Semaphore;
 
 lazy_static::lazy_static! {
 	static ref BUCKET : Bucket = {
@@ -63,11 +59,11 @@ pub async fn upload_file_to_bucket(
 	bytes: Bytes,
 	content_type: Option<String>,
 	semaphore: &Arc<Semaphore>,
-) -> Result<(), Error> {
+) -> crate::utils::Result<()> {
+	const RETRIES: i32 = 3;
 	let _permit = semaphore.acquire().await?;
 	let key = path.clone();
 
-	const RETRIES: i32 = 3;
 	for attempt in 1..=(RETRIES + 1) {
 		tracing::trace!("attempting file upload, attempt {attempt}");
 		let result = if let Some(ref content_type) = content_type {
@@ -77,7 +73,7 @@ pub async fn upload_file_to_bucket(
 		} else {
 			BUCKET.put_object(key.clone(), &bytes).await
 		}
-		.map_err(|err| ErrorKind::S3 {
+		.map_err(|err| crate::utils::ErrorKind::S3 {
 			inner: err,
 			file: path.clone(),
 		});
@@ -98,9 +94,11 @@ pub async fn upload_url_to_bucket_mirrors(
 	mirrors: Vec<String>,
 	sha1: Option<String>,
 	semaphore: &Arc<Semaphore>,
-) -> Result<(), Error> {
+) -> crate::utils::Result<()> {
 	if mirrors.is_empty() {
-		return Err(ErrorKind::InvalidInput("No mirrors provided!".to_string()).into());
+		return Err(
+			crate::utils::ErrorKind::InvalidInput("no mirrors provided!".to_string()).into(),
+		);
 	}
 
 	for (index, mirror) in mirrors.iter().enumerate() {
@@ -122,7 +120,7 @@ pub async fn upload_url_to_bucket(
 	url: String,
 	sha1: Option<String>,
 	semaphore: &Arc<Semaphore>,
-) -> Result<(), Error> {
+) -> crate::utils::Result<()> {
 	let data = download_file(&url, sha1.as_deref(), semaphore).await?;
 	upload_file_to_bucket(path, data, None, semaphore).await?;
 
@@ -130,7 +128,7 @@ pub async fn upload_url_to_bucket(
 }
 
 #[tracing::instrument(skip(bytes))]
-pub async fn sha1_async(bytes: Bytes) -> Result<String, Error> {
+pub async fn sha1_async(bytes: Bytes) -> crate::utils::Result<String> {
 	Ok(tokio::task::spawn_blocking(move || sha1_smol::Sha1::from(bytes).hexdigest()).await?)
 }
 
@@ -139,17 +137,17 @@ pub async fn download_file(
 	url: &str,
 	sha1: Option<&str>,
 	semaphore: &Arc<Semaphore>,
-) -> Result<bytes::Bytes, crate::Error> {
+) -> crate::utils::Result<Bytes> {
+	const RETRIES: u32 = 10;
 	let _permit = semaphore.acquire().await?;
 	tracing::trace!("starting file download!");
 
-	const RETRIES: u32 = 10;
 	for attempt in 1..=(RETRIES + 1) {
 		let result = REQWEST_CLIENT
 			.get(url.replace("http://", "https://"))
 			.send()
 			.await
-			.and_then(|x| x.error_for_status());
+			.and_then(reqwest::Response::error_for_status);
 
 		match result {
 			Ok(x) => {
@@ -160,14 +158,13 @@ pub async fn download_file(
 						if &*sha1_async(bytes.clone()).await? != sha1 {
 							if attempt <= 3 {
 								continue;
-							} else {
-								return Err(crate::ErrorKind::ChecksumFailure {
-									hash: sha1.to_string(),
-									url: url.to_string(),
-									tries: attempt,
-								}
-								.into());
 							}
+							return Err(crate::utils::ErrorKind::ChecksumFailure {
+								hash: sha1.to_string(),
+								url: url.to_string(),
+								tries: attempt,
+							}
+							.into());
 						}
 					}
 
@@ -175,7 +172,7 @@ pub async fn download_file(
 				} else if attempt <= RETRIES {
 					continue;
 				} else if let Err(err) = bytes {
-					return Err(crate::ErrorKind::Fetch {
+					return Err(crate::utils::ErrorKind::Fetch {
 						inner: err,
 						item: url.to_string(),
 					}
@@ -184,7 +181,7 @@ pub async fn download_file(
 			}
 			Err(_) if attempt <= RETRIES => continue,
 			Err(err) => {
-				return Err(crate::ErrorKind::Fetch {
+				return Err(crate::utils::ErrorKind::Fetch {
 					inner: err,
 					item: url.to_string(),
 				}
@@ -199,7 +196,7 @@ pub async fn download_file(
 pub async fn fetch_json<T: DeserializeOwned>(
 	url: &str,
 	semaphore: &Arc<Semaphore>,
-) -> Result<T, Error> {
+) -> crate::utils::Result<T> {
 	Ok(serde_json::from_slice(
 		&download_file(url, None, semaphore).await?,
 	)?)
@@ -208,12 +205,13 @@ pub async fn fetch_json<T: DeserializeOwned>(
 pub async fn fetch_xml<T: DeserializeOwned>(
 	url: &str,
 	semaphore: &Arc<Semaphore>,
-) -> Result<T, Error> {
+) -> crate::utils::Result<T> {
 	Ok(serde_xml_rs::from_reader(
 		&*download_file(url, None, semaphore).await?,
 	)?)
 }
 
+#[must_use]
 pub fn format_url(path: &str) -> String {
 	format!("{}/{}", &*dotenvy::var("BASE_URL").unwrap(), path)
 }
