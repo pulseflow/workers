@@ -19,7 +19,7 @@ pub struct LibraryPatch {
 	pub patch_additional_libraries: Option<bool>,
 }
 
-pub fn collect_patch_files(dir: &String, dest: &String) -> anyhow::Result<()> {
+pub fn collect_patch_files(dir: &String, dest: &String) -> eyre::Result<()> {
 	let dir = std::path::Path::new(&dir);
 	let dest = std::path::Path::new(&dest);
 
@@ -34,7 +34,7 @@ pub fn collect_patch_files(dir: &String, dest: &String) -> anyhow::Result<()> {
 	Ok(())
 }
 
-pub fn uncollect_patch_files(dir: &String, dest: &String) -> anyhow::Result<()> {
+pub fn uncollect_patch_files(dir: &String, dest: &String) -> eyre::Result<()> {
 	let dir = std::path::Path::new(&dir);
 	let dest = std::path::Path::new(&dest);
 
