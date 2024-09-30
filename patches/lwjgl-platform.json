@@ -29,8 +29,8 @@
 			}
 		},
 		"natives": {
-			"linux-arm64": "natives-linux-arm64",
 			"linux-arm32": "natives-linux-arm32",
+			"linux-arm64": "natives-linux-arm64",
 			"osx-arm64": "natives-osx-arm64"
 		}
 	}

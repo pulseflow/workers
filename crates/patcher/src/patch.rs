@@ -29,7 +29,10 @@ pub fn collect_patch_files(dir: &String, dest: &String) -> eyre::Result<()> {
 		.filter_map(|p| serde_json::from_str(&std::fs::read_to_string(p.path()).ok()?).ok())
 		.collect();
 
-	std::fs::write(dest, serde_json::to_string(&patches)?)?;
+	let file_writer = std::io::BufWriter::new(std::fs::File::create(dest)?);
+	let formatter = serde_json::ser::PrettyFormatter::with_indent(b"	");
+	let mut serializer = serde_json::Serializer::with_formatter(file_writer, formatter);
+	patches.serialize(&mut serializer)?;
 
 	Ok(())
 }
