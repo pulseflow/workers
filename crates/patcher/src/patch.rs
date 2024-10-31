@@ -72,7 +72,7 @@ fn generate_unique_file_name(file_names: &mut HashMap<String, usize>, base_name:
 	*count += 1;
 
 	if *count == 1 {
-		format!("{}.json", base_name)
+		format!("{base_name}.json")
 	} else {
 		format!("{base_name}-{count}.json")
 	}
