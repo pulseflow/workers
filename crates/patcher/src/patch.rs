@@ -25,7 +25,7 @@ pub fn collect_patch_files(dir: &String, dest: &String) -> eyre::Result<()> {
 
 	let patches: Vec<LibraryPatch> = std::fs::read_dir(dir)?
 		.filter_map(Result::ok)
-		.filter(|p| p.path().extension().map_or(false, |e| e == "json"))
+		.filter(|p| p.path().extension().is_some_and(|e| e == "json"))
 		.filter_map(|p| serde_json::from_str(&std::fs::read_to_string(p.path()).ok()?).ok())
 		.collect();
 

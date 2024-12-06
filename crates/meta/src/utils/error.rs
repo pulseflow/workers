@@ -12,25 +12,25 @@ pub enum ErrorKind {
 	SerdeJSON(#[from] serde_json::Error),
 	#[error("failed to deserialize XML: {0}")]
 	SerdeXML(#[from] serde_xml_rs::Error),
-	#[error("failed to validate file checksum at url {url} with hash {hash} after {tries} tries")]
-	ChecksumFailure {
-		hash: String,
-		url: String,
-		tries: u32,
-	},
 	#[error("failed to fetch {item}")]
 	Fetch { inner: reqwest::Error, item: String },
-	#[error("failed to upload file to S3: {file}")]
-	S3 {
-		inner: s3::error::S3Error,
-		file: String,
-	},
 	#[error("failed to acquire semaphore: {0}")]
 	Acquire(#[from] tokio::sync::AcquireError),
 	#[error("tracing error: {0}")]
 	Tracing(#[from] tracing::subscriber::SetGlobalDefaultError),
 	#[error("zip error: {0}")]
 	Zip(#[from] async_zip::error::ZipError),
+	#[error("failed to upload file to S3: {file}")]
+	S3 {
+		inner: s3::error::S3Error,
+		file: String,
+	},
+	#[error("failed to validate file checksum at url {url} with hash {hash} after {tries} tries")]
+	ChecksumFailure {
+		hash: String,
+		url: String,
+		tries: u32,
+	},
 }
 
 #[derive(Debug)]

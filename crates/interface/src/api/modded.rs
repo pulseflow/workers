@@ -1,6 +1,5 @@
-use crate::utils::prelude::*;
-
 use crate::api::minecraft::{Argument, ArgumentType, Library, VersionInfo, VersionType};
+use crate::utils::prelude::*;
 
 /// The latest version of the format the fabric model structs deserialize to
 pub const CURRENT_FABRIC_FORMAT_VERSION: usize = 0;
