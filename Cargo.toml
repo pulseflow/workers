@@ -47,7 +47,7 @@ deprecated_in_future = "forbid"
 unused_must_use = "deny"
 
 [workspace.dependencies]
-specta = { version = "2.0.0-rc.20", features = ["serde", "uuid", "chrono", "serde_json", "derive"] }
+specta = { version = "2.0.0-rc.22", features = ["serde", "uuid", "chrono", "serde_json", "derive"] }
 
 tokio = { version = "1.42", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
