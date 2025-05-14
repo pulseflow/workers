@@ -22,7 +22,7 @@ pub enum ErrorKind {
 	Zip(#[from] async_zip::error::ZipError),
 	#[error("failed to upload file to S3: {file}")]
 	S3 {
-		inner: s3::error::S3Error,
+		inner: Box<s3::error::S3Error>,
 		file: String,
 	},
 	#[error("failed to validate file checksum at url {url} with hash {hash} after {tries} tries")]

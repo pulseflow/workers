@@ -163,6 +163,7 @@ pub fn merge_partial_version(partial: PartialVersionInfo, merge: VersionInfo) ->
 		} else {
 			merge.main_class
 		},
+		logging: merge.logging,
 		minecraft_arguments: partial.minecraft_arguments,
 		minimum_launcher_version: merge.minimum_launcher_version,
 		release_time: partial.release_time,

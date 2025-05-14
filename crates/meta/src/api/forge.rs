@@ -689,6 +689,7 @@ async fn fetch(
 		let manifest = interpulse::api::modded::Manifest {
 			game_versions: forge_versions
 				.into_iter()
+				.sorted_by(|a, b| b.game_version.cmp(&a.game_version))
 				.rev()
 				.chunk_by(|x| x.game_version.clone())
 				.into_iter()
