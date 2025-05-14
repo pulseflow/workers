@@ -1,5 +1,5 @@
 use crate::utils::prelude::*;
-use interpulse::api::modded::{Manifest, PartialVersionInfo, DUMMY_REPLACE_STRING};
+use interpulse::api::modded::{DUMMY_REPLACE_STRING, Manifest, PartialVersionInfo};
 
 #[tracing::instrument(skip(semaphore, upload_files, mirror_artifacts))]
 pub async fn fetch_fabric(

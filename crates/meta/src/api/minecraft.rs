@@ -1,6 +1,6 @@
 use crate::utils::{download_file, fetch_json, format_url, sha1_async};
 use interpulse::api::minecraft::{
-	merge_partial_library, Library, VersionInfo, VersionManifest, VERSION_MANIFEST_URL,
+	Library, VERSION_MANIFEST_URL, VersionInfo, VersionManifest, merge_partial_library,
 };
 use meta_patcher::patch::LibraryPatch;
 use std::sync::Arc;

@@ -2,56 +2,54 @@ use crate::utils::prelude::*;
 use s3::creds::Credentials;
 use s3::{Bucket, Region};
 
-lazy_static::lazy_static! {
-	static ref BUCKET : Bucket = {
-		let region = dotenvy::var("S3_REGION").unwrap();
-		let b = Bucket::new(
-			&dotenvy::var("S3_BUCKET_NAME").unwrap(),
-			if &*region == "r2" {
-				Region::R2 {
-					account_id: dotenvy::var("S3_URL").unwrap(),
-				}
-			} else {
-				Region::Custom {
-					region: region.clone(),
-					endpoint: dotenvy::var("S3_URL").unwrap(),
-				}
-			},
-			Credentials::new(
-				Some(&*dotenvy::var("S3_ACCESS_TOKEN").unwrap()),
-				Some(&*dotenvy::var("S3_SECRET").unwrap()),
-				None,
-				None,
-				None,
-			).unwrap(),
-		).unwrap();
-
-		if region == "path-style" {
-			*b.with_path_style()
+static BUCKET: std::sync::LazyLock<Bucket> = std::sync::LazyLock::new(|| {
+	let region = dotenvy::var("S3_REGION").unwrap();
+	let b = Bucket::new(
+		&dotenvy::var("S3_BUCKET_NAME").unwrap(),
+		if &*region == "r2" {
+			Region::R2 {
+				account_id: dotenvy::var("S3_URL").unwrap(),
+			}
 		} else {
-			*b
-		}
-	};
-}
+			Region::Custom {
+				region: region.clone(),
+				endpoint: dotenvy::var("S3_URL").unwrap(),
+			}
+		},
+		Credentials::new(
+			Some(&*dotenvy::var("S3_ACCESS_TOKEN").unwrap()),
+			Some(&*dotenvy::var("S3_SECRET").unwrap()),
+			None,
+			None,
+			None,
+		)
+		.unwrap(),
+	)
+	.unwrap();
 
-lazy_static::lazy_static! {
-	pub static ref REQWEST_CLIENT: reqwest::Client = {
-		let mut headers = reqwest::header::HeaderMap::new();
-		if let Ok(header) = reqwest::header::HeaderValue::from_str(&format!(
-			"pulseflow/workers/{} (help@worker.dyn.gay)",
-			env!("CARGO_PKG_VERSION")
-		)) {
-			headers.insert(reqwest::header::USER_AGENT, header);
-		}
+	if region == "path-style" {
+		*b.with_path_style()
+	} else {
+		*b
+	}
+});
 
-		reqwest::Client::builder()
-			.tcp_keepalive(Some(std::time::Duration::from_secs(15)))
-			.timeout(std::time::Duration::from_secs(30))
-			.default_headers(headers)
-			.build()
-			.unwrap()
-	};
-}
+pub static REQWEST_CLIENT: std::sync::LazyLock<reqwest::Client> = std::sync::LazyLock::new(|| {
+	let mut headers = reqwest::header::HeaderMap::new();
+	if let Ok(header) = reqwest::header::HeaderValue::from_str(&format!(
+		"pulseflow/workers/{} (help@worker.dyn.gay)",
+		env!("CARGO_PKG_VERSION")
+	)) {
+		headers.insert(reqwest::header::USER_AGENT, header);
+	}
+
+	reqwest::Client::builder()
+		.tcp_keepalive(Some(std::time::Duration::from_secs(15)))
+		.timeout(std::time::Duration::from_secs(30))
+		.default_headers(headers)
+		.build()
+		.unwrap()
+});
 
 #[tracing::instrument(skip(bytes, semaphore))]
 pub async fn upload_file_to_bucket(
@@ -185,7 +183,7 @@ pub async fn download_file(
 					inner: err,
 					item: url.to_string(),
 				}
-				.into())
+				.into());
 			}
 		}
 	}

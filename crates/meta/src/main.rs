@@ -1,7 +1,7 @@
 use crate::utils::prelude::*;
 use tracing_error::ErrorLayer;
 use tracing_subscriber::prelude::*;
-use tracing_subscriber::{fmt, EnvFilter};
+use tracing_subscriber::{EnvFilter, fmt};
 
 mod api;
 pub mod utils;
